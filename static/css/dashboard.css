@@ -369,6 +369,12 @@ html, body, .container {
   color: white;
 }
 
+.skipped-button.statico {
+  border-left: 3px solid #f44336; /* Rosso */
+  background-color: #f44336;
+  color: white;
+}
+
 .player-icon {
   width: 24px;
   height: 24px;

@@ -356,6 +356,10 @@ initialize_queues()
 def controls_statico():
     return render_template('controls_statico.html')
 
+@app.route('/controls/combined')
+def controls_combined():
+    return render_template('controls_combined1.html')
+
 @app.route('/add_statico', methods=['POST'])
 def add_statico():
     id = request.json.get('id')

@@ -17,6 +17,8 @@ class GameBackend:
         # Code: ogni elemento è un dizionario con "id" e "arrival" (orario d'arrivo)
         self.queue_couples: List[Queue] = []  # Es. [{'id': 'GIALLO-01', 'arrival': datetime}, ...]
         self.queue_singles: List[Queue] = []  # Es. [{'id': 'BLU-01', 'arrival': datetime}, ...]
+        self.queue_couples2: List[Queue] = []  # Es. [{'id': 'VIOLA-01', 'arrival': datetime}, ...]
+        self.queue_singles2: List[Queue] = []  # Es. [{'id': 'ARANCIO-01', 'arrival': datetime}, ...]
         self.queue_charlie: List[Queue] = []  # Es. [{'id': 'VERDE-01', 'arrival': datetime}, ...]
         self.queue_statico: List[Queue] = []
 
@@ -25,6 +27,9 @@ class GameBackend:
         self.couple_history_mid: List[float] = []    # Tempo dal Pulsante 1 al Pulsante 3 (liberazione di ALFA)
         self.couple_history_total: List[float] = []  # Tempo totale per il game coppia (fino alla liberazione di BRAVO)
         self.single_history: List[float] = []        # Tempo totale per il game singolo (durata in cui ALFA è occupata)
+        self.couple_history_mid2: List[float] = []    # Tempo dal Pulsante 1 al Pulsante 3 (liberazione di ALFA)
+        self.couple_history_total2: List[float] = []  # Tempo totale per il game coppia2 (fino alla liberazione di BRAVO)
+        self.single_history2: List[float] = []        # Tempo totale per il game singolo2 (durata in cui ALFA è occupata)
         self.charlie_history: List[float] = []       # Tempo totale per il game charlie
         self.statico_history: List[float] = []
 
@@ -45,6 +50,8 @@ class GameBackend:
         # Giocatori attuali in pista
         self.current_player_alfa: Optional[Queue] = None
         self.current_player_bravo: Optional[Queue] = None
+        self.current_player_alfa2: Optional[Queue] = None
+        self.current_player_bravo2: Optional[Queue] = None
         self.current_player_charlie: Optional[Queue] = None
         self.current_player_delta: Optional[Queue] = None
         self.current_player_echo: Optional[Queue] = None
@@ -54,6 +61,8 @@ class GameBackend:
         now = self.get_current_time()
         self.ALFA_next_available = now
         self.BRAVO_next_available = now
+        self.ALFA_next_available2 = now
+        self.BRAVO_next_available2 = now
         self.CHARLIE_next_available = now
         self.DELTA_next_available = now
         self.ECHO_next_available = now
@@ -62,10 +71,14 @@ class GameBackend:
         self.next_player_alfa_bravo_id: Optional[str] = None
         self.next_player_alfa_bravo_locked: bool = False
         self.next_player_alfa_bravo_name: Optional[str] = None
+        self.next_player_alfa_bravo_id2: Optional[str] = None
+        self.next_player_alfa_bravo_locked2: bool = False
+        self.next_player_alfa_bravo_name2: Optional[str] = None
         self.next_player_charlie_id: Optional[str] = None
         self.next_player_charlie_locked: bool = False
         self.next_player_charlie_name: Optional[str] = None
         self.current_player_couple: Optional[Queue] = None
+        self.current_player_couple2: Optional[Queue] = None
         self.player_in_charlie: bool = False
         self.next_player_statico_id: Optional[str] = None
         self.next_player_statico_locked: bool = False
@@ -76,12 +89,18 @@ class GameBackend:
         self.couple_in_alfa = False
         self.single_in_alfa = False
         self.third_button_pressed = False
+        self.couple_in_bravo2 = False
+        self.couple_in_alfa2 = False
+        self.single_in_alfa2 = False
+        self.third_button_pressed2 = False
         self.statico_in_delta = False
         self.statico_in_echo = False
 
         # Liste per i giocatori skippati
         self.skipped_couples: List[Queue] = []
         self.skipped_singles: List[Queue] = []
+        self.skipped_couples2: List[Queue] = []
+        self.skipped_singles2: List[Queue] = []
         self.skipped_charlie: List[Queue] = []
         self.skipped_statico: List[Queue] = []
 

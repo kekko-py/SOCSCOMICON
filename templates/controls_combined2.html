@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/controls_combined2.css') }}">
+{% endblock %}
+
+{% block content %}
+<h1>Controllo Piste Secondarie</h1>
+
+<!-- Sezione condivisa per il prossimo giocatore -->
+<div class="shared-next-player">
+    <h2>Prossimo Giocatore</h2>
+    <div class="next-player-info">
+        <span id="next-player2">-</span>
+    </div>
+    <button id="next-player-btn2" class="btn btn-next" onclick="activateNextPlayer2()" disabled>
+        Prossimo Giocatore
+    </button>
+</div>
+
+<div class="control-container">
+    <!-- Sezione Coppia 2 -->
+    <div class="control-section couple-section2">
+        <h2>Coppia 2</h2>
+        
+        <div class="game-info">
+            <div class="current-player">
+                Prenotazione in gioco: <span id="current-player-couple2">-</span>
+            </div>
+            <div class="game-timer">
+                Tempo trascorso: <span id="timer-couple2">00:00</span>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="button-group">
+                <button id="start-btn-couple2" class="btn btn-start" onclick="pressButton('first_start2', 'couple2')">START</button>
+                <button id="stop-btn-couple2" class="btn btn-stop" onclick="pressButton('first_stop2', 'couple2')">STOP</button>
+            </div>
+            <div class="status">
+                Stato: <span id="status-couple2">ALFA2: - BRAVO2: -</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sezione Singolo 2 -->
+    <div class="control-section single-section2">
+        <h2>Singolo 2</h2>
+        
+        <div class="game-info">
+            <div class="current-player">
+                Prenotazione in gioco: <span id="current-player-single2">-</span>
+            </div>
+            <div class="game-timer">
+                Tempo trascorso: <span id="timer-single2">00:00</span>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="button-group">
+                <button id="start-btn-single2" class="btn btn-start" onclick="pressButton('second_start2', 'single2')">START</button>
+                <button id="stop-btn-single2" class="btn btn-stop" onclick="pressButton('second_stop2', 'single2')">STOP</button>
+            </div>
+            <div class="status">
+                Stato: <span id="status-single2">ALFA2: -</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/controls_combined2.js') }}"></script>
+{% endblock %}

@@ -487,6 +487,9 @@ def scoring():
 def keypad():
     return render_template('keypad.html')
 
+@app.route('/keypad2')
+def keypad2():
+    return render_template('keypad2.html')
 
 @app.route('/dashboard')
 def dashboard():
@@ -672,8 +675,8 @@ def simulate():
     now = backend.get_current_time()
     backend.ALFA_next_available = backend.localize_time(backend.ALFA_next_available)
     backend.BRAVO_next_available = backend.localize_time(backend.BRAVO_next_available)
-    backend.ALFA2_next_available = backend.localize_time(backend.ALFA2_next_available)
-    backend.BRAVO2_next_available = backend.localize_time(backend.BRAVO2_next_available)
+    backend.ALFA_next_available2 = backend.localize_time(backend.ALFA_next_available2)
+    backend.BRAVO_next_available2 = backend.localize_time(backend.BRAVO_next_available2)
     backend.CHARLIE_next_available = backend.localize_time(backend.CHARLIE_next_available)
     backend.DELTA_next_available = backend.localize_time(backend.DELTA_next_available)
     backend.ECHO_next_available = backend.localize_time(backend.ECHO_next_available)
@@ -681,8 +684,8 @@ def simulate():
 
     alfa_remaining = max(0, (backend.ALFA_next_available - now).total_seconds() / 60)
     bravo_remaining = max(0, (backend.BRAVO_next_available - now).total_seconds() / 60)
-    alfa2_remaining = max(0, (backend.ALFA2_next_available - now).total_seconds() / 60)
-    bravo2_remaining = max(0, (backend.BRAVO2_next_available - now).total_seconds() / 60)
+    alfa2_remaining = max(0, (backend.ALFA_next_available2 - now).total_seconds() / 60)
+    bravo2_remaining = max(0, (backend.BRAVO_next_available2 - now).total_seconds() / 60)
     charlie_remaining = max(0, (backend.CHARLIE_next_available - now).total_seconds() / 60)
     delta_remaining = max(0, (backend.DELTA_next_available - now).total_seconds() / 60)
     echo_remaining = max(0, (backend.ECHO_next_available - now).total_seconds() / 60)
@@ -750,12 +753,16 @@ def button_press():
         return jsonify(success=True, start_time=now.isoformat(), current_player_bravo=backend.current_player_bravo,
                        current_player_alfa=backend.current_player_alfa)
     
-    elif button == 'first_start2':
-        if not backend.queue_couples2:
-            return jsonify(success=False, error="La coda delle coppie è vuota. Non è possibile avviare il gioco.")
-        backend.start_game(is_couple=True)
-        return jsonify(success=True, start_time=now.isoformat(), current_player_bravo=backend.current_player_bravo,
-                       current_player_alfa=backend.current_player_alfa) 
+    elif button == 'first_start2': # NUOVO CASO SPECIFICO
+        if not backend.queue_couples2: # Controlla queue_couples2
+            return jsonify(success=False, error="La coda Coppie 2 (Viola) è vuota.")
+        try:
+            backend.start_game2(is_couple=True) # Chiama start_game2
+            return jsonify(success=True, start_time=now.isoformat(),
+                        current_player_bravo2=backend.current_player_bravo2,
+                        current_player_alfa2=backend.current_player_alfa2)
+        except ValueError as e:
+            return jsonify(success=False, error=str(e)), 400
 
     elif button == 'second_start':
         if not backend.queue_singles:
@@ -766,7 +773,7 @@ def button_press():
     elif button == 'second_start2':
         if not backend.queue_singles2:
             return jsonify(success=False, error="La coda dei singoli è vuota. Non è possibile avviare il gioco.")
-        backend.start_game(is_couple=False)
+        backend.start_game2(is_couple=False)
         return jsonify(success=True, start_time=now.isoformat(), current_player_alfa=backend.current_player_alfa)
 
 
@@ -781,16 +788,6 @@ def button_press():
         else:
             return jsonify(success=False, error="Nessuna coppia in pista.")
     
-    elif button == 'first_stop2':
-        if not backend.can_stop_couple2():
-            return jsonify(success=False,
-                           error="Non è possibile fermare la coppia senza aver prima inserito il codice di metà percorso")
-        if backend.current_player_couple2:
-            backend.record_couple_game(backend.T_mid, (
-                    now - backend.player_start_times[backend.current_player_couple2['id']]).total_seconds() / 60)
-            return jsonify(success=True)
-        else:
-            return jsonify(success=False, error="Nessuna coppia in pista.")
 
     elif button == 'second_stop':
         if backend.current_player_alfa:
@@ -803,24 +800,85 @@ def button_press():
         else:
             return jsonify(success=False, error="Nessun giocatore singolo in pista ALFA.")
 
+
+    elif button == 'first_stop2':
+                if not backend.can_stop_couple2(): # Verifica se può fermarsi
+                    logging.warning("Tentativo di stop coppia 2 senza metà percorso registrato o senza coppia in bravo 2.")
+                    return jsonify(success=False, error="Metà percorso 2 non registrato o coppia non più in Bravo 2."), 400
+                # current_player_couple2 viene controllato dentro record_couple2_game
+                start_time = backend.player_start_times.get(backend.current_player_couple2['id']) if backend.current_player_couple2 else None
+                if start_time:
+                    # Calcola tempi
+                    mid_time_approx = (backend.ALFA_next_available2 - start_time).total_seconds() / 60 if backend.ALFA_next_available2 > start_time else backend.T_mid2 # Usa T_mid2 come fallback
+                    total_time = (now - start_time).total_seconds() / 60
+                    # Chiama la funzione specifica per il set 2
+                    backend.record_couple2_game(mid_time_approx, total_time)
+                    logging.info(f"Stop Coppia 2 registrato per {backend.current_player_couple2.get('id', 'N/A') if backend.current_player_couple2 else 'N/A'}") # Log prima che venga resettato
+                    return jsonify(success=True)
+                else:
+                    # Questo caso dovrebbe essere raro se start_game2 funziona, ma gestiamolo
+                    logging.error(f"Orario inizio non trovato per stop coppia 2 (Giocatore attuale: {backend.current_player_couple2})")
+                    # Tentiamo comunque di registrare con tempo totale 0 se non c'è start_time?
+                    # O restituiamo errore? Restituiamo errore per ora.
+                    # Se necessario, potresti chiamare record_couple2_game(0, 0) per pulire lo stato.
+                    backend.current_player_couple2 = None # Pulisci comunque lo stato
+                    backend.current_player_bravo2 = None
+                    backend.couple_in_bravo2 = False
+                    backend.third_button_pressed2 = False
+                    return jsonify(success=False, error="Orario inizio coppia 2 non trovato per calcolare tempo."), 500
+
+
     elif button == 'second_stop2':
-        if backend.current_player_alfa2:
-            player_id = backend.current_player_alfa2.get('id')
-            if player_id and player_id in backend.player_start_times:
-                backend.record_single_game((now - backend.player_start_times[player_id]).total_seconds() / 60)
-                return jsonify(success=True)
-            else:
-                return jsonify(success=False, error="Errore nel recupero del tempo di inizio del giocatore singolo.")
-        else:
-            return jsonify(success=False, error="Nessun giocatore singolo in pista ALFA2.")
+                 # ----> CONTROLLO AGGIUNTO QUI <----
+                 if not backend.current_player_alfa2:
+                     logging.warning("Tentativo di stop singolo 2, ma current_player_alfa2 è già None.")
+                     # Consideriamo questo come successo, lo stop è già avvenuto o non necessario
+                     return jsonify(success=True, message="Nessun giocatore singolo 2 attivo da fermare.")
+
+                 # Se siamo qui, current_player_alfa2 esiste
+                 player_id = backend.current_player_alfa2.get('id') # Ottieni l'ID in modo sicuro
+
+                 # Assicurati che sia un singolo ARANCIO
+                 if not player_id or not player_id.startswith('ARANCIO'):
+                     current_id = player_id if player_id else 'N/A'
+                     logging.warning(f"Tentativo di stop singolo 2, ma il giocatore in ALFA 2 non è ARANCIO: {current_id}")
+                     # Non resettare current_player_alfa2 qui, l'utente potrebbe voler fermare il giocatore corretto dopo
+                     return jsonify(success=False, error=f"Giocatore in ALFA 2 ({current_id}) non è un Singolo 2 (Arancio)."), 400
+
+                 # Cerca l'orario di inizio
+                 start_time = backend.player_start_times.get(player_id)
+                 if start_time:
+                     game_time = (now - start_time).total_seconds() / 60
+                     # Chiama la funzione specifica per il set 2
+                     # record_single2_game imposterà current_player_alfa2 = None
+                     backend.record_single2_game(game_time)
+                     logging.info(f"Stop Singolo 2 registrato per {player_id}")
+                     return jsonify(success=True)
+                 else:
+                     # Errore: orario inizio non trovato, ma il giocatore esiste
+                     logging.error(f"Orario inizio non trovato per stop singolo 2 (Giocatore attuale: {player_id})")
+                     # Pulisci lo stato per evitare blocchi, ma segnala errore
+                     backend.current_player_alfa2 = None
+                     backend.single_in_alfa2 = False
+                     backend.update_next_player2() # Aggiorna il prossimo
+                     return jsonify(success=False, error=f"Orario inizio per {player_id} non trovato."), 500
 
     elif button == 'third':
         backend.button_third_pressed()
         return jsonify(success=True)
     
     elif button == 'third2':
-        backend.button_third_pressed2()
-        return jsonify(success=True)
+            try:
+                # Chiama la funzione specifica nel backend
+                backend.button_third_pressed2()
+                logging.info("Metà percorso 2 (third2) attivato con successo.")
+                return jsonify(success=True)
+            except ValueError as e: # Cattura l'errore se non c'è la coppia giusta
+                logging.warning(f"Attivazione third2 fallita: {e}")
+                return jsonify(success=False, error=str(e)), 400 # Restituisce l'errore al frontend
+            except Exception as e: # Cattura altri errori imprevisti
+                logging.error(f"Errore imprevisto durante l'attivazione di third2: {e}", exc_info=True)
+                return jsonify(success=False, error="Errore interno del server."), 500
     
 
     elif button == 'charlie_start':
@@ -913,9 +971,20 @@ def skip_next_player_alfa_bravo():
 def skip_next_player_alfa_bravo2():
     player_id = request.json.get('id')
     if player_id:
-        backend.skip_player(player_id)
-        return jsonify(success=True)
-    return jsonify(success=False, error="Player ID is required"), 400   
+        try:
+            backend.skip_player2(player_id) # Chiama la funzione specifica per il set 2
+            logging.info(f"Skipped player {player_id} from Alfa/Bravo 2 queue.") # Log
+            # Restituisci il nuovo prossimo giocatore per il set 2
+            return jsonify(
+                success=True,
+                next_player_alfa_bravo_id2=backend.next_player_alfa_bravo_id2,
+                next_player_alfa_bravo_name2=backend.get_player_name(backend.next_player_alfa_bravo_id2)
+            )
+        except Exception as e:
+             logging.error(f"Errore durante skip_player2 per ID {player_id}: {e}", exc_info=True) # Log con traceback
+             return jsonify(success=False, error=f"Errore backend skip: {e}"), 500
+    logging.warning("Richiesta skip_next_player_alfa_bravo2 senza ID.") # Log
+    return jsonify(success=False, error="Player ID is required"), 400 
 
 @app.route('/skip_charlie_player', methods=['POST'])
 def skip_charlie_player():

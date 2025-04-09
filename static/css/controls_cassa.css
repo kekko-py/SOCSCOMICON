@@ -149,3 +149,60 @@
     background-color: #f44336;
     color: white;
 }
+
+.btn-yellow {
+    background: #FFEB3B;
+    color: black;
+    width: 100%;
+}
+
+.btn-blue {
+    background: #2772DB; /* second-color */
+    color: white;
+    width: 100%;
+}
+
+.btn-red {
+    background: #f44336;
+    color: white;
+    width: 100%;
+}
+
+.btn-green {
+    background: #4CAF50;
+    color: white;
+    width: 100%;
+}
+
+/* NUOVI STILI */
+.btn-purple {
+    background: #9c27b0; /* Viola */
+    color: white;
+    width: 100%;
+}
+
+.btn-orange {
+    background: #ff9800; /* Arancione */
+    color: white;
+    width: 100%;
+}
+
+.btn-purple:hover:not(:disabled) {
+    background: #7b1fa2;
+}
+
+.btn-orange:hover:not(:disabled) {
+    background: #f57c00;
+}
+
+/* ... resto degli stili ... */
+
+.skipped-button.couple2 { /* Stile per bottoni skippati couple2 */
+  background-color: #9c27b0; /* Viola */
+  color: white;
+}
+
+.skipped-button.single2 { /* Stile per bottoni skippati single2 */
+  background-color: #ff9800; /* Arancione */
+  color: white;
+}

@@ -210,47 +210,65 @@ class GameBackend:
 
     def record_couple2_game(self, mid_time: float, total_time: float) -> None:
         """
-        Registra i tempi (in minuti) relativi a un game coppia2:
-          - mid_time: tempo dal Pulsante 1 al Pulsante 3 (liberazione di ALFA)
-          - total_time: tempo totale dal Pulsante 1 (avvio) allo stop (liberazione di BRAVO)
-        Dopo la registrazione, aggiorna i tempi medi.
-        """ 
-        self.couple_history_mid2.append(mid_time)
-        self.couple_history_total2.append(total_time)
-        # Mantiene la pista BRAVO occupata fino alla fine del game di coppia
-        self.current_player_bravo2 = None  
-        self.couple_in_alfa2 = False
-        self.couple_in_bravo2 = False
-        self.update_averages()
-        self.update_next_player()
-        # Record the duration
-        player_id = self.current_player_couple2['id']
-        start_time = self.player_start_times.pop(player_id, None)
-        if start_time:  
-            duration = (self.get_current_time() - start_time).total_seconds() / 60
-            self.player_durations[player_id] = duration
+        Registra i tempi per un game coppia 2 (Viola).
+        Il tempo totale viene aggiunto alla storia comune per la classifica.
+        """
+        if self.current_player_couple2: # Controllo di sicurezza
+            player_id = self.current_player_couple2['id']
 
-    def record_single2_game(self, game_time: float) -> None:
-        """
-        Registra il tempo (in minuti) relativo a un game singolo2 (durata in cui ALFA è occupata).
-        Dopo la registrazione, aggiorna i tempi medi.           
-        """
-        if self.current_player_alfa2:
-            player_id = self.current_player_alfa2['id']
-            self.single_history2.append(game_time)
-            self.update_averages()
-            self.current_player_alfa2 = None    
-            if self.couple_in_bravo2 and self.queue_singles2:
-                self.next_player_alfa_bravo_id2 = self.queue_singles2[0]['id']
-                self.next_player_alfa_bravo_name2 = self.get_player_name(self.next_player_alfa_bravo_id2)
-                self.next_player_alfa_bravo_locked2 = True
-            else:
-                self.update_next_player()
-            # Record the duration
+            # Aggiungi mid_time alla storia specifica di mid2 (se vuoi medie separate)
+            self.couple_history_mid2.append(mid_time)
+            # Aggiungi total_time alla storia COMUNE per la classifica
+            self.couple_history_total.append(total_time)
+
+            # Memorizza la durata specifica del giocatore
             start_time = self.player_start_times.pop(player_id, None)
             if start_time:
                 duration = (self.get_current_time() - start_time).total_seconds() / 60
-                self.player_durations[player_id] = duration     
+                self.player_durations[player_id] = duration
+            else:
+                # Se non troviamo start_time, usiamo total_time come fallback per player_durations
+                self.player_durations[player_id] = total_time
+
+            # Resetta lo stato per il set 2
+            self.current_player_bravo2 = None # Libera Bravo 2
+            # Nota: current_player_alfa2 dovrebbe essere già None se è stato premuto third2
+            self.couple_in_bravo2 = False
+            self.third_button_pressed2 = False # Resetta il flag di metà percorso 2
+
+            self.update_averages() # Aggiorna le medie (che ora considerano i tempi combinati)
+            self.update_next_player2() # Aggiorna il prossimo giocatore per il set 2
+
+            # Rimuovi current_player_couple2 alla fine
+            self.current_player_couple2 = None
+
+
+    def record_single2_game(self, game_time: float) -> None:
+        """
+        Registra il tempo per un game singolo 2 (Arancio).
+        Il tempo viene aggiunto alla storia comune per la classifica.
+        """
+        if self.current_player_alfa2: # Controllo di sicurezza
+            player_id = self.current_player_alfa2['id']
+
+            # Aggiungi game_time alla storia COMUNE per la classifica
+            self.single_history.append(game_time)
+
+            # Memorizza la durata specifica del giocatore
+            start_time = self.player_start_times.pop(player_id, None)
+            if start_time:
+                duration = (self.get_current_time() - start_time).total_seconds() / 60
+                self.player_durations[player_id] = duration
+            else:
+                self.player_durations[player_id] = game_time # Fallback
+
+            # Resetta lo stato per il set 2
+            self.current_player_alfa2 = None # Libera Alfa 2
+            self.single_in_alfa2 = False
+
+            self.update_averages() # Aggiorna le medie
+            self.update_next_player2() # Aggiorna il prossimo giocatore per il set 2
+        
                 
 
     def record_charlie_game(self, game_time: float) -> None:
@@ -301,55 +319,53 @@ class GameBackend:
     
     
 
+    # Dentro la classe GameBackend in main.py
+
     def update_averages(self) -> None:
         """
-        Aggiorna i tempi medi in base allo storico.
-        Se sono stati registrati almeno 5 game, si calcola la media;
-        altrimenti si usano i valori indicativi.
+        Aggiorna i tempi medi. T_total e T_single usano storie combinate.
+        T_mid e T_mid2 sono calcolate separatamente.
         """
-        if len(self.couple_history_mid) >= 5:
+        min_games_for_avg = 5 # Numero minimo di game per calcolare la media
+
+        # Media T_mid (Set 1)
+        if len(self.couple_history_mid) >= min_games_for_avg:
             self.T_mid = sum(self.couple_history_mid) / len(self.couple_history_mid)
         else:
             self.T_mid = self.default_T_mid
 
-        if len(self.couple_history_total) >= 5:
+        # Media T_mid2 (Set 2) - NUOVO attributo T_mid2
+        if len(self.couple_history_mid2) >= min_games_for_avg:
+            self.T_mid2 = sum(self.couple_history_mid2) / len(self.couple_history_mid2)
+        else:
+            # Potresti voler un default diverso per T_mid2 se necessario
+            self.T_mid2 = self.default_T_mid # Usiamo lo stesso default per ora
+
+        # Media T_total (Combinata) - MODIFICATA
+        # Ora self.couple_history_total contiene i tempi di entrambi i set
+        if len(self.couple_history_total) >= min_games_for_avg:
             self.T_total = sum(self.couple_history_total) / len(self.couple_history_total)
         else:
             self.T_total = self.default_T_total
 
-        if len(self.single_history) >= 5:
+        # Media T_single (Combinata) - MODIFICATA
+        # Ora self.single_history contiene i tempi di entrambi i set
+        if len(self.single_history) >= min_games_for_avg:
             self.T_single = sum(self.single_history) / len(self.single_history)
         else:
             self.T_single = self.default_T_single
 
-        if len(self.couple_history_mid2) >= 5:
-            self.T_mid2 = sum(self.couple_history_mid2) / len(self.couple_history_mid2)
-        else:
-            self.T_mid2 = self.default_T_mid2   
-
-        if len(self.couple_history_total2) >= 5:
-            self.T_total2 = sum(self.couple_history_total2) / len(self.couple_history_total2)
-        else:
-            self.T_total2 = self.default_T_total2
-
-        if len(self.single_history2) >= 5:  
-            self.T_single2 = sum(self.single_history2) / len(self.single_history2)
-        else:
-            self.T_single2 = self.default_T_single2
-
-        # Aggiungi calcolo media per Charlie
-        if len(self.charlie_history) >= 5:
+        # Media T_charlie (invariata)
+        if len(self.charlie_history) >= min_games_for_avg:
             self.T_charlie = sum(self.charlie_history) / len(self.charlie_history)
         else:
             self.T_charlie = self.default_T_charlie
 
-        if len(self.statico_history) >= 5:
+        # Media T_statico (invariata)
+        if len(self.statico_history) >= min_games_for_avg:
             self.T_statico = sum(self.statico_history) / len(self.statico_history)
         else:
-            self.T_statico = self.default_T_statico
-
-
-    
+            self.T_statico = self.default_T_statico    
 
     def get_player_name(self, player_id: Optional[str]) -> str:
         if player_id is None:
@@ -514,8 +530,8 @@ class GameBackend:
         if is_couple:
             if self.queue_couples2:
                 self.current_player_couple2 = self.queue_couples2.pop(0)
-                self.ALFA_next_available2 = now + datetime.timedelta(minutes=self.T_mid2)   
-                self.BRAVO_next_available2 = now + datetime.timedelta(minutes=self.T_total2)
+                self.ALFA_next_available2 = now + datetime.timedelta(minutes=self.T_mid)   
+                self.BRAVO_next_available2 = now + datetime.timedelta(minutes=self.T_total)
                 self.current_player_alfa2 = self.current_player_couple2
                 self.current_player_bravo2 = self.current_player_couple2
                 self.couple_in_alfa2 = True
@@ -535,7 +551,7 @@ class GameBackend:
             if self.queue_singles2:
                 self.current_player_alfa2 = self.queue_singles2.pop(0)
                 self.single_in_alfa2 = True
-                self.ALFA_next_available2 = now + datetime.timedelta(minutes=self.T_single2)
+                self.ALFA_next_available2 = now + datetime.timedelta(minutes=self.T_single)
                 self.player_start_times[self.current_player_alfa2['id']] = now
                 if self.queue_couples2:
                     self.next_player_alfa_bravo_id2 = self.queue_couples2[0]['id']
@@ -687,12 +703,14 @@ class GameBackend:
 
     def simulate_schedule2(self) -> Dict[str, datetime.datetime]:
         now = self.get_current_time()
-        self.ALFA_next_available2 = self.localize_time(self.ALFA_next_available2)
         sim_time = max(now, self.ALFA_next_available2)
+
+        self.ALFA_next_available2 = self.localize_time(self.ALFA_next_available2)
+        BRAVO_avail2 = self.BRAVO_next_available2 if self.BRAVO_next_available2 > sim_time else sim_time
         
-        dt_mid2 = datetime.timedelta(minutes=self.T_mid2)
-        dt_total2 = datetime.timedelta(minutes=self.T_total2)
-        dt_single2 = datetime.timedelta(minutes=self.T_single2)
+        dt_mid2 = datetime.timedelta(minutes=self.T_mid)
+        dt_total2 = datetime.timedelta(minutes=self.T_total)
+        dt_single2 = datetime.timedelta(minutes=self.T_single)
         
         couples = deepcopy(self.queue_couples2)
         singles = deepcopy(self.queue_singles2) 
@@ -748,88 +766,87 @@ class GameBackend:
     ]:
         now = self.get_current_time()
         # Calcola i tempi stimati di ingresso
-        est = self.simulate_schedule()
-        # Se non è già fissato un prossimo giocatore...
+        est1 = self.simulate_schedule()
+        est2 = self.simulate_schedule2()
+        # --- Logica per next_player_alfa_bravo_id (usa est1) ---
         if not self.next_player_alfa_bravo_locked:
+            # ... (logica esistente per next_player_alfa_bravo_id usando est1) ...
             # Caso speciale: se c'è una coppia in BRAVO e un singolo in ALFA, prioritizza le coppie
             if self.couple_in_bravo and self.single_in_alfa and self.queue_couples:
                 self.next_player_alfa_bravo_id = self.queue_couples[0]['id']
                 self.next_player_alfa_bravo_locked = True
             else:
                 # Altrimenti, controlla il tempo stimato per ogni giocatore in coda
+                next_player_found = False
                 for queue_item in self.queue_couples + self.queue_singles:
-                    estimated_time = est.get(queue_item['id'])
+                    estimated_time = est1.get(queue_item['id'])
                     if estimated_time:
                         minutes_to_entry = (estimated_time - now).total_seconds() / 60
-                        if minutes_to_entry <= 2:
+                        # Imposta come prossimo se l'ingresso è imminente o è il primo della coda simulata
+                        if minutes_to_entry <= 2 or not next_player_found:
                             self.next_player_alfa_bravo_id = queue_item['id']
+                            self.next_player_alfa_bravo_name = self.get_player_name(self.next_player_alfa_bravo_id) # Aggiorna anche il nome
                             self.next_player_alfa_bravo_locked = True
-                            break
-        
+                            next_player_found = True
+                            # Se l'ingresso è imminente, blocca la scelta
+                            if minutes_to_entry <= 2:
+                                break # Esci dal ciclo una volta trovato un giocatore imminente
+
+
+        # --- Logica per next_player_alfa_bravo_id2 (usa est2) --- (NUOVA)
         if not self.next_player_alfa_bravo_locked2:
-            est2 = self.simulate_schedule2()
-            # Caso speciale: se c'è una coppia in BRAVO e un singolo in ALFA, prioritizza le coppie
             if self.couple_in_bravo2 and self.single_in_alfa2 and self.queue_couples2:
                 self.next_player_alfa_bravo_id2 = self.queue_couples2[0]['id']
+                self.next_player_alfa_bravo_name2 = self.get_player_name(self.next_player_alfa_bravo_id2) # Aggiorna anche il nome
                 self.next_player_alfa_bravo_locked2 = True
             else:
-                # Altrimenti, controlla il tempo stimato per ogni giocatore in coda
+                next_player_found2 = False
                 for queue_item in self.queue_couples2 + self.queue_singles2:
-                    estimated_time = est2.get(queue_item['id'])
+                    estimated_time = est2.get(queue_item['id']) # Usa est2
                     if estimated_time:
                         minutes_to_entry = (estimated_time - now).total_seconds() / 60
-                        if minutes_to_entry <= 2:
+                        if minutes_to_entry <= 2 or not next_player_found2:
                             self.next_player_alfa_bravo_id2 = queue_item['id']
+                            self.next_player_alfa_bravo_name2 = self.get_player_name(self.next_player_alfa_bravo_id2) # Aggiorna anche il nome
                             self.next_player_alfa_bravo_locked2 = True
-                            break
-                    
+                            next_player_found2 = True
+                            if minutes_to_entry <= 2:
+                                break
 
-        # Costruzione della board: se l'elemento corrisponde a next_player_alfa_bravo_id, mostra "PROSSIMO INGRESSO"
+            # --- Costruzione board ALFA/BRAVO 1 (usa est1) ---
         couples_board: List[Tuple[int, str, Union[datetime.datetime, str]]] = []
         for idx, item in enumerate(self.queue_couples):
-            estimated = est.get(item['id'], None)
-            if item['id'] == self.next_player_alfa_bravo_id:
-                couples_board.append((idx + 1, item['id'], "PROSSIMO INGRESSO"))
-            else:
-                # Convertiamo eventuale None in "N/D"
-                value = estimated if estimated is not None else "N/D"
-                couples_board.append((idx + 1, item['id'], value))
+            estimated = est1.get(item['id'], "N/D") # Default a "N/D" se non trovato
+            display_time = "PROSSIMO INGRESSO" if item['id'] == self.next_player_alfa_bravo_id else estimated
+            couples_board.append((idx + 1, item['id'], display_time))
 
         singles_board: List[Tuple[int, str, Union[datetime.datetime, str]]] = []
         for idx, item in enumerate(self.queue_singles):
-            estimated = est.get(item['id'], None)
-            if item['id'] == self.next_player_alfa_bravo_id:
-                singles_board.append((idx + 1, item['id'], "PROSSIMO INGRESSO"))
-            else:
-                value = estimated if estimated is not None else "N/D"
-                singles_board.append((idx + 1, item['id'], value))
+            estimated = est1.get(item['id'], "N/D") # Default a "N/D"
+            display_time = "PROSSIMO INGRESSO" if item['id'] == self.next_player_alfa_bravo_id else estimated
+            singles_board.append((idx + 1, item['id'], display_time))
 
+        # --- Costruzione board ALFA/BRAVO 2 (usa est2) --- (MODIFICATA)
         couples_board2: List[Tuple[int, str, Union[datetime.datetime, str]]] = []
         for idx, item in enumerate(self.queue_couples2):
-            estimated = est2.get(item['id'], None)
-            if item['id'] == self.next_player_alfa_bravo_id2:
-                couples_board2.append((idx + 1, item['id'], "PROSSIMO INGRESSO"))
-            else:   
-                value = estimated if estimated is not None else "N/D"
-                couples_board2.append((idx + 1, item['id'], value))
+            estimated = est2.get(item['id'], "N/D") # Usa est2, Default a "N/D"
+            display_time = "PROSSIMO INGRESSO" if item['id'] == self.next_player_alfa_bravo_id2 else estimated
+            couples_board2.append((idx + 1, item['id'], display_time))
 
         singles_board2: List[Tuple[int, str, Union[datetime.datetime, str]]] = []
         for idx, item in enumerate(self.queue_singles2):
-            estimated = est2.get(item['id'], None)
-            if item['id'] == self.next_player_alfa_bravo_id2:
-                singles_board2.append((idx + 1, item['id'], "PROSSIMO INGRESSO"))
-            else:   
-                value = estimated if estimated is not None else "N/D"
-                singles_board2.append((idx + 1, item['id'], value))
+            estimated = est2.get(item['id'], "N/D") # Usa est2, Default a "N/D"
+            display_time = "PROSSIMO INGRESSO" if item['id'] == self.next_player_alfa_bravo_id2 else estimated
+            singles_board2.append((idx + 1, item['id'], display_time))
 
-        charlie_board: List[Tuple[int, str, Union[datetime.datetime, str]]] = []
-        for idx, item in enumerate(self.queue_charlie):
-            if item['id'] == self.next_player_charlie_id:
-                charlie_board.append((idx + 1, item['id'], "PROSSIMO INGRESSO"))
-            else:
-                players_ahead = idx
-                estimated_time = now + datetime.timedelta(minutes=self.T_charlie * players_ahead)
-                charlie_board.append((idx + 1, item['id'], estimated_time))
+            charlie_board: List[Tuple[int, str, Union[datetime.datetime, str]]] = []
+            for idx, item in enumerate(self.queue_charlie):
+                if item['id'] == self.next_player_charlie_id:
+                    charlie_board.append((idx + 1, item['id'], "PROSSIMO INGRESSO"))
+                else:
+                    players_ahead = idx
+                    estimated_time = now + datetime.timedelta(minutes=self.T_charlie * players_ahead)
+                    charlie_board.append((idx + 1, item['id'], estimated_time))
 
         # Costruzione della board statico (nuova)
         statico_board: List[Tuple[int, str, Union[datetime.datetime, str]]] = []
@@ -842,6 +859,44 @@ class GameBackend:
                 # Consideriamo che ci sono 2 piste (DELTA e ECHO) quindi il tempo si dimezza
                 estimated_time = now + datetime.timedelta(minutes=(self.T_statico * players_ahead) / 2)
                 statico_board.append((idx + 1, item['id'], estimated_time))
+
+            # Esempio ricalcolo Charlie
+        charlie_board: List[Tuple[int, str, Union[datetime.datetime, str]]] = []
+        charlie_sim_time = max(now, self.localize_time(self.CHARLIE_next_available))
+        for idx, item in enumerate(self.queue_charlie):
+            start_time = charlie_sim_time
+            if item['id'] == self.next_player_charlie_id:
+                display_time = "PROSSIMO INGRESSO"
+            else:
+                display_time = start_time
+
+            charlie_board.append((idx + 1, item['id'], display_time))
+            # Il prossimo può iniziare solo dopo che questo finisce
+            charlie_sim_time = start_time + datetime.timedelta(minutes=self.T_charlie)
+
+
+        # Esempio ricalcolo Statico
+        statico_board: List[Tuple[int, str, Union[datetime.datetime, str]]] = []
+        delta_avail = self.localize_time(self.DELTA_next_available)
+        echo_avail = self.localize_time(self.ECHO_next_available)
+        for idx, item in enumerate(self.queue_statico):
+            # Trova la prossima pista disponibile da ora in poi
+            next_avail_time = min(max(now, delta_avail), max(now, echo_avail))
+            start_time = next_avail_time
+
+            if item['id'] == self.next_player_statico_id:
+                display_time = "PROSSIMO INGRESSO"
+            else:
+                display_time = start_time
+
+            statico_board.append((idx + 1, item['id'], display_time))
+
+            # Aggiorna la disponibilità della pista usata
+            if max(now, delta_avail) <= max(now, echo_avail):
+                delta_avail = start_time + datetime.timedelta(minutes=self.T_statico)
+            else:
+                echo_avail = start_time + datetime.timedelta(minutes=self.T_statico)
+            
 
         return couples_board, singles_board, couples_board2, singles_board2, charlie_board, statico_board
 
@@ -856,14 +911,16 @@ class GameBackend:
             raise ValueError("Non c'è una coppia in ALFA.")
 
     def button_third_pressed2(self) -> None:
-        """Gestisce la pressione del pulsante metà percorso e libera la Pista ALPHA solo se c'era una coppia"""
-        if self.current_player_alfa2 and self.current_player_alfa2["id"].startswith("GIALLO"):
+        """Gestisce la pressione del pulsante metà percorso 2 e libera ALFA 2 solo se c'era una coppia VIOLA"""
+        if self.current_player_alfa2 and self.current_player_alfa2.get("id", "").startswith("VIOLA"):
+            now = self.get_current_time()
             self.third_button_pressed2 = True
-            self.couple_in_alfa2 = False    
-            self.current_player_alfa2 = None    # Libera la pista ALPHA
-            self.next_player_alfa_bravo_id2 = None         # Correzione: resettiamo next_player_alfa_bravo_id
+            self.couple_in_alfa2 = False
+            self.current_player_alfa2 = None # Libera la pista
+            self.ALFA_next_available2 = now # Rende ALFA 2 disponibile
         else:
-            raise ValueError("Non c'è una coppia in ALFA.")
+            current_player_id = self.current_player_alfa2.get("id", "Nessuno") if self.current_player_alfa2 else "Nessuno"
+            raise ValueError("Non c'è una Coppia 2 (Viola) in ALFA 2.")
 
 
     def can_stop_couple(self) -> bool:
@@ -871,8 +928,7 @@ class GameBackend:
         return self.third_button_pressed
     
     def can_stop_couple2(self) -> bool:
-        "Verifica se una coppia può fermarsi"
-        return self.third_button_pressed2
+        return self.third_button_pressed2 and self.current_player_bravo2 and self.current_player_bravo2.get("id", "").startswith("VIOLA")
 
 
     def skip_player(self, player_id: str) -> None:

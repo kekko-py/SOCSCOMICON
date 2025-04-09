@@ -1,10 +1,13 @@
 let coupleCounter = 1;
 let singleCounter = 1;
+let coupleCounter2 = 1;
+let singleCounter2 = 1;
 let charlieCounter = 1;
 let staticoCounter = 1;
 $(document).ready(function () {
     fetchLastPlayerIds(); // Imposta i counter basati sugli ID attuali
     updateDashboard();
+    setInterval(updateDashboard, 1000); // Aggiorna la dashboard ogni secondo
 });
 
 
@@ -12,7 +15,7 @@ function fetchLastPlayerIds() {
     fetch('/simulate')
         .then(response => response.json())
         .then(data => {
-            let maxCouple = 0, maxSingle = 0, maxCharlie = 0, maxStatico = 0;
+            let maxCouple = 0, maxSingle = 0, maxCouple2 = 0, maxSingle2 = 0, maxCharlie = 0, maxStatico = 0;
 
             if (data.couples.length > 0) {
                 let lastCouple = data.couples[data.couples.length - 1];
@@ -22,6 +25,18 @@ function fetchLastPlayerIds() {
             if (data.singles.length > 0) {
                 let lastSingle = data.singles[data.singles.length - 1];
                 maxSingle = parseInt(lastSingle.id.split(' ')[1]) || 0;
+            }
+
+            // Coppie Viola (NUOVO)
+            if (data.couples2 && data.couples2.length > 0) {
+                const ids = data.couples2.map(p => parseInt(p.id.split(' ')[1])).filter(n => !isNaN(n));
+                 if (ids.length > 0) maxCouple2 = Math.max(...ids);
+            }
+
+            // Singoli Arancio (NUOVO)
+            if (data.singles2 && data.singles2.length > 0) {
+                const ids = data.singles2.map(p => parseInt(p.id.split(' ')[1])).filter(n => !isNaN(n));
+                 if (ids.length > 0) maxSingle2 = Math.max(...ids);
             }
 
             if (data.charlie.length > 0) {
@@ -37,12 +52,16 @@ function fetchLastPlayerIds() {
             // Imposta i counter al numero successivo
             coupleCounter = maxCouple + 1;
             singleCounter = maxSingle + 1;
+            coupleCounter2 = maxCouple2 + 1; // NUOVO
+            singleCounter2 = maxSingle2 + 1; // NUOVO
             charlieCounter = maxCharlie + 1;
             staticoCounter = maxStatico + 1;
 
             // Aggiorna i pulsanti con il valore corretto
             document.getElementById('playerId-coppia').value = `${coupleCounter}`;
             document.getElementById('playerId-singolo').value = `${singleCounter}`;
+            $('#playerId-coppia2').val(coupleCounter2); // NUOVO
+            $('#playerId-singolo2').val(singleCounter2); // NUOVO
             document.getElementById('playerId-charlie').value = `${charlieCounter}`;
             document.getElementById('playerId-statico').value = `${staticoCounter}`;
         })
@@ -57,6 +76,10 @@ function handleSkip(playerType) {
         case 'alfa-bravo':
             elementId = "next-player-alfa-bravo-text";
             endpoint = "/skip_next_player_alfa_bravo";
+            break;
+        case 'alfa-bravo2': // NUOVO CASO
+            elementId = "next-player-alfa-bravo2-text";
+            endpoint = "/skip_next_player_alfa_bravo2"; // NUOVO ENDPOINT (da creare in app.py)
             break;
         case 'charlie':
             elementId = "next-charlie-text";
@@ -100,6 +123,8 @@ function skipNextPlayerAlfaBravo() {
     handleSkip('alfa-bravo');
 }
 
+function skipNextPlayerAlfaBravo2() { handleSkip('alfa-bravo2'); }
+
 function skipNextPlayerCharlie() {
     handleSkip('charlie');
 }
@@ -108,101 +133,46 @@ function skipNextPlayerStatico() {
     handleSkip('statico');
 }
 
-document.getElementById('queueForm-coppia').addEventListener('submit', function (event) {
+// Coppia (Giallo)
+$('#queueForm-coppia').on('submit', function (event) {
     event.preventDefault();
-    const playerType = document.getElementById('playerType').value;
-    const playerId =  document.getElementById('playerId-coppia').value;
-
-    fetch(`/add_couple`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id: playerId, name: 'GIALLO' })
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(`${playerName} ${playerId} aggiunto con successo!`);
-                updateDashboard(); // Update the dashboard to reflect the new player
-            } else {
-                showNotification('Errore nell\'aggiunta del giocatore.', true);
-            }
-        });
-
-        document.getElementById('playerId-coppia').value = `${Number(document.getElementById('playerId-coppia').value)   + 1}`;
+    const playerId = $('#playerId-coppia').val();
+    addPlayer('couple', playerId, 'GIALLO', '/add_couple', '#playerId-coppia');
 });
 
-document.getElementById('queueForm-singolo').addEventListener('submit', function (event) {
+// Singolo (Blu)
+$('#queueForm-singolo').on('submit', function (event) {
     event.preventDefault();
-    const playerType = document.getElementById('playerType').value;
-    const playerId = document.getElementById('playerId-singolo').value;
-    fetch(`/add_single`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id: playerId, name: 'BLU' })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification(`${playerName} ${playerId} aggiunto con successo!`);
-            updateDashboard(); // Update the dashboard to reflect the new player
-        } else {
-            showNotification('Errore nell\'aggiunta del giocatore.', true);
-        }
-    });
-
-    document.getElementById('playerId-singolo').value = `${Number(document.getElementById('playerId-singolo').value)   + 1}`;
+    const playerId = $('#playerId-singolo').val();
+    addPlayer('single', playerId, 'BLU', '/add_single', '#playerId-singolo');
 });
 
-document.getElementById('queueForm-charlie').addEventListener('submit', function (event) {
+// Coppia 2 (Viola) - NUOVO
+$('#queueForm-coppia2').on('submit', function (event) {
     event.preventDefault();
-    const playerType = document.getElementById('playerType').value;
-    const playerId = document.getElementById('playerId-charlie').value;
-    fetch(`/add_charlie`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id: playerId, name: 'VERDE' })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification(`${playerName} ${playerId} aggiunto con successo!`);
-            updateDashboard(); // Update the dashboard to reflect the new player
-        } else {
-            showNotification('Errore nell\'aggiunta del giocatore.', true);
-        }
-    });
-
-    document.getElementById('playerId-charlie').value = `${Number(document.getElementById('playerId-charlie').value)   + 1}`;
+    const playerId = $('#playerId-coppia2').val();
+    addPlayer('couple2', playerId, 'VIOLA', '/add_couple2', '#playerId-coppia2'); // Nuovo tipo, nome, endpoint, input ID
 });
 
-document.getElementById('queueForm-statico').addEventListener('submit', function (event) {
+// Singolo 2 (Arancio) - NUOVO
+$('#queueForm-singolo2').on('submit', function (event) {
     event.preventDefault();
-    const playerType = document.getElementById('playerType').value;
-    const playerId = document.getElementById('playerId-statico').value;
-    fetch(`/add_statico`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id: playerId, name: 'ROSSO' })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification(`${playerName} ${playerId} aggiunto con successo!`);
-            updateDashboard();
-        } else {
-            showNotification('Errore nell\'aggiunta del giocatore.', true);
-        }
-    });
+    const playerId = $('#playerId-singolo2').val();
+    addPlayer('single2', playerId, 'ARANCIO', '/add_single2', '#playerId-singolo2'); // Nuovo tipo, nome, endpoint, input ID
+});
 
-    document.getElementById('playerId-statico').value = `${Number(document.getElementById('playerId-statico').value) + 1}`;
+// Charlie (Verde)
+$('#queueForm-charlie').on('submit', function (event) {
+    event.preventDefault();
+    const playerId = $('#playerId-charlie').val();
+    addPlayer('charlie', playerId, 'VERDE', '/add_charlie', '#playerId-charlie');
+});
+
+// Statico (Rosso)
+$('#queueForm-statico').on('submit', function (event) {
+    event.preventDefault();
+    const playerId = $('#playerId-statico').val();
+    addPlayer('statico', playerId, 'ROSSO', '/add_statico', '#playerId-statico');
 });
 
 // document.getElementById('add-couple-btn').addEventListener('click', function () {
@@ -244,56 +214,81 @@ document.getElementById('queueForm-statico').addEventListener('submit', function
 //     }
 // });
 
-function addPlayer(type, id, name) {
-    fetch(`/add_${type}`, {
+// Funzione generica per aggiungere giocatore
+function addPlayer(type, id, name, endpoint, inputSelector) {
+    const numericId = Number(id);
+    if (isNaN(numericId) || numericId <= 0) {
+        showNotification('ID Giocatore non valido.', true);
+        return;
+    }
+
+    fetch(endpoint, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id: id, name: name })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: numericId, name: name }) // Invia l'ID come numero
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(`${name} ${id} aggiunto con successo!`);
-                updateDashboard(); // Update the dashboard to reflect the new player
-            } else {
-                showNotification('Errore nell\'aggiunta del giocatore.', true);
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const formattedId = `${name} ${String(numericId).padStart(3, '0')}`; // Ricrea l'ID formattato per la notifica
+            showNotification(`${formattedId} aggiunto con successo!`);
+            updateDashboard(); // Aggiorna la dashboard
+            // Incrementa e aggiorna l'input field per il prossimo ID
+            $(inputSelector).val(numericId + 1);
+            // Aggiorna i contatori globali (opzionale, se fetchLastPlayerIds non viene richiamato subito)
+            switch(type) {
+                case 'couple': coupleCounter = numericId + 1; break;
+                case 'single': singleCounter = numericId + 1; break;
+                case 'couple2': coupleCounter2 = numericId + 1; break;
+                case 'single2': singleCounter2 = numericId + 1; break;
+                case 'charlie': charlieCounter = numericId + 1; break;
+                case 'statico': staticoCounter = numericId + 1; break;
             }
-        });
+        } else {
+            showNotification(`Errore nell'aggiunta: ${data.error || 'Errore sconosciuto'}`, true);
+        }
+    })
+    .catch(error => {
+        console.error(`Errore fetch ${endpoint}:`, error);
+        showNotification('Errore di comunicazione con il server.', true);
+    });
 }
 
+// --- Funzioni Utilità (esistenti) ---
 function showNotification(message, isError = false) {
-    const notification = document.getElementById('notification');
-    notification.textContent = message;
-    notification.style.color = isError ? 'red' : 'green';
-    setTimeout(() => {
-        notification.textContent = '';
-    }, 3000);
+    const notification = $('#notification');
+    notification.text(message);
+    notification.css('color', isError ? 'red' : 'green');
+    // Usa fadeOut e fadeIn per un effetto più gradevole
+    notification.fadeIn().delay(3000).fadeOut();
 }
 
 function deletePlayer(playerId) {
+    // Chiedi conferma prima di eliminare
+    if (!confirm(`Sei sicuro di voler eliminare il giocatore ${playerId}?`)) {
+        return;
+    }
+
     fetch(`/delete_player`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: playerId }),
     })
-        .then((response) => response.json())
-        .then((data) => {
-            if (data.success) {
-                updateDashboard();
-            } else {
-                showNotification("Errore nella cancellazione del giocatore.", true);
-            }
-        });
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.success) {
+            showNotification(`Giocatore ${playerId} eliminato.`);
+            updateDashboard(); // Aggiorna subito dopo l'eliminazione
+        } else {
+            showNotification(`Errore nella cancellazione del giocatore ${playerId}.`, true);
+        }
+    })
+    .catch(error => {
+        console.error("Errore fetch delete_player:", error);
+        showNotification('Errore di comunicazione durante la cancellazione.', true);
+    });
 }
 
-// Ensure the dashboard updates are also applied in the cassa page
-setInterval(() => {
-    updateDashboard();
-}, 1000);
 
 $(document).ready(function () {
     updateDashboard();

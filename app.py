@@ -26,9 +26,8 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 SQLITE_DB_PATH = os.path.join(CURRENT_DIR, 'SOCSCOMICON', 'stand_db.db')  # Modifica il percorso per puntare alla nuova directory
 BASE_URL = "http://localhost:2000"  # Bisogna cambiarlo con il sito delle queue si mercenari socs che andremo a creare
 
-REPO_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(REPO_DIR, SQLITE_DB_PATH)
-
+SOCSCOMICON_REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "SOCSCOMICON")
+DB_PATH = os.path.join(SOCSCOMICON_REPO, "stand_db.db")
 
 def init_sqlite():
     logging.debug("[QUEUES] Acquisizione del lock per SQLite")
@@ -263,14 +262,14 @@ load_queues_from_db()
 def save_queues_to_db():
     while True:
         try:
-            os.chdir(REPO_DIR)
-            subprocess.run(["git", "add", DB_PATH])
+            os.chdir(SOCSCOMICON_REPO)
+
+            subprocess.run(["git", "add", "stand_db.db"])
             subprocess.run(["git", "commit", "-m", f"Auto update {datetime.now().isoformat()}"])
             subprocess.run(["git", "push", "origin", "main"])
         except Exception as e:
             print(f"Errore durante il salvataggio delle code: {e}")
-        time.sleep(60)  # Salva ogni 60 secondi
-
+        time.sleep(60)
 
 # Avvia il thread per il salvataggio periodico
 save_thread = Thread(target=save_queues_to_db, daemon=True)

@@ -54,6 +54,94 @@ function updateDashboard() {
         }
       }
 
+      // Aggiorna la coda coppie 2 (Viola)
+      const couples2Board = document.getElementById("couples2-board");
+      if (couples2Board) {
+        couples2Board.innerHTML = "";
+        if (data.couples2) { // Verifica che data.couples2 esista
+            data.couples2.forEach((player) => {
+              const timeDisplay = player.estimated_time === "PROSSIMO INGRESSO" ? "PROSSIMO INGRESSO" : formatTimeRome(player.estimated_time);
+              const li = document.createElement("li");
+              li.innerHTML = `${player.id} - Ingresso: ${timeDisplay} <button class="trash-button" onclick="deletePlayer('${player.id}')"><img class="trash-icon" src="/static/icons/trash.svg" alt="Delete"></button>`;
+              couples2Board.appendChild(li);
+            });
+        }
+      }
+
+      // Aggiorna la coda singoli 2 (Arancio)
+      const singles2Board = document.getElementById("singles2-board");
+      if (singles2Board) {
+        singles2Board.innerHTML = "";
+         if (data.singles2) { // Verifica che data.singles2 esista
+            data.singles2.forEach((player) => {
+              const timeDisplay = player.estimated_time === "PROSSIMO INGRESSO" ? "PROSSIMO INGRESSO" : formatTimeRome(player.estimated_time);
+              const li = document.createElement("li");
+              li.innerHTML = `${player.id} - Ingresso: ${timeDisplay} <button class="trash-button" onclick="deletePlayer('${player.id}')"><img class="trash-icon" src="/static/icons/trash.svg" alt="Delete"></button>`;
+              singles2Board.appendChild(li);
+            });
+         }
+      }
+
+      // Aggiorna prossimo giocatore Alfa2/Bravo2
+      const nextPlayerAlfaBravo2Text = document.getElementById("next-player-alfa-bravo2-text");
+      if (nextPlayerAlfaBravo2Text) {
+          if (data.next_player_alfa_bravo_id2) {
+              nextPlayerAlfaBravo2Text.textContent = `${data.next_player_alfa_bravo_id2}`;
+          } else {
+              nextPlayerAlfaBravo2Text.textContent = "Nessun Giocatore in coda";
+          }
+      }
+
+      // Aggiorna giocatore corrente in Alfa2
+      const currentPlayerAlfa2 = document.getElementById("current-player-alfa2");
+      const alfa2Duration = document.getElementById("alfa2-duration");
+      if (currentPlayerAlfa2 && alfa2Duration) {
+        if (data.current_player_alfa2) {
+          currentPlayerAlfa2.textContent = data.current_player_alfa2["id"];
+          alfa2Duration.textContent = data.alfa2_duration || '-';
+        } else {
+          currentPlayerAlfa2.textContent = "Nessun giocatore";
+          alfa2Duration.textContent = "-";
+        }
+      }
+
+      // Aggiorna giocatore corrente in Bravo2
+      const currentPlayerBravo2 = document.getElementById("current-player-bravo2");
+      const bravo2Duration = document.getElementById("bravo2-duration");
+      if (currentPlayerBravo2 && bravo2Duration) {
+        if (data.current_player_bravo2) {
+          currentPlayerBravo2.textContent = data.current_player_bravo2.id;
+          bravo2Duration.textContent = data.bravo2_duration || '-';
+        } else {
+          currentPlayerBravo2.textContent = "Nessun giocatore";
+          bravo2Duration.textContent = "-";
+        }
+      }
+
+      // Aggiorna stato e colore card ALFA2
+      const alfa2State = $("#alfa2-state");
+      const alfa2Remaining = $("#alfa2-remaining");
+      const alfa2Status = $("#alfa2-status");
+      if (alfa2State.length && alfa2Remaining.length && alfa2Status.length) { // Usa .length con jQuery
+        alfa2State.text(data.alfa2_status || '-');
+        alfa2Remaining.text(data.alfa2_remaining || '-');
+        alfa2Status
+          .removeClass("occupied free")
+          .addClass(data.alfa2_status === "Occupata" ? "occupied" : "free");
+      }
+
+      // Aggiorna stato e colore card BRAVO2
+      const bravo2State = $("#bravo2-state");
+      const bravo2Remaining = $("#bravo2-remaining");
+      const bravo2Status = $("#bravo2-status");
+      if (bravo2State.length && bravo2Remaining.length && bravo2Status.length) { // Usa .length con jQuery
+        bravo2State.text(data.bravo2_status || '-');
+        bravo2Remaining.text(data.bravo2_remaining || '-');
+        bravo2Status
+          .removeClass("occupied free")
+          .addClass(data.bravo2_status === "Occupata" ? "occupied" : "free");
+      }
+
       // se non ci sono charlie in coda nella board, resettami il prossimo giocatore
       if (data.charlie.length === 0) {
         const nextCharlieText = document.getElementById("next-charlie-text");
@@ -76,6 +164,29 @@ function updateDashboard() {
           li.innerHTML = `${player.id} - Ingresso: ${timeDisplay} <button class="trash-button" onclick="deletePlayer('${player.id}')"><img class="trash-icon" src="/static/icons/trash.svg" alt="Delete"></button>`;
           charlieBoard.appendChild(li);
         });
+      }
+
+      // Aggiorna la coda Statico
+      const staticoBoard = document.getElementById("statico-board");
+      if (staticoBoard) {
+          staticoBoard.innerHTML = "";
+          if (data.statico) {
+              data.statico.forEach((player) => {
+                  const timeDisplay =
+                      player.estimated_time === "PROSSIMO INGRESSO"
+                          ? "PROSSIMO INGRESSO"
+                          : formatTimeRome(player.estimated_time);
+                  const li = document.createElement("li");
+                  li.innerHTML = `${player.id} - Ingresso: ${timeDisplay} <button class="trash-button" onclick="deletePlayer('${player.id}')"><img class="trash-icon" src="/static/icons/trash.svg" alt="Delete"></button>`;
+                  staticoBoard.appendChild(li);
+              });
+          }
+      }
+
+      // Aggiorna il prossimo giocatore statico
+      const nextStaticoText = document.getElementById("next-statico-text");
+      if (nextStaticoText && data.next_player_statico_id && data.next_player_statico_name) {
+          nextStaticoText.textContent = `${data.next_player_statico_id}` || "nessun giocatore in coda";
       }
 
       const nextPlayerAlfaBravoText = document.getElementById("next-player-alfa-bravo-text");
@@ -134,6 +245,31 @@ function updateDashboard() {
         }
       }
 
+      // Aggiorna i giocatori correnti in pista statico
+      const currentPlayerDelta = document.getElementById("current-player-delta");
+      const deltaDuration = document.getElementById("delta-duration");
+      if (currentPlayerDelta && deltaDuration) {
+          if (data.current_player_delta) {
+              currentPlayerDelta.textContent = data.current_player_delta.id;
+              deltaDuration.textContent = data.delta_duration;
+          } else {
+              currentPlayerDelta.textContent = "Nessun giocatore";
+              deltaDuration.textContent = "-";
+          }
+      }
+
+      const currentPlayerEcho = document.getElementById("current-player-echo");
+      const echoDuration = document.getElementById("echo-duration");
+      if (currentPlayerEcho && echoDuration) {
+          if (data.current_player_echo) {
+              currentPlayerEcho.textContent = data.current_player_echo.id;
+              echoDuration.textContent = data.echo_duration;
+          } else {
+              currentPlayerEcho.textContent = "Nessun giocatore";
+              echoDuration.textContent = "-";
+          }
+      }
+
       // Aggiorna lo stato e il colore della card ALFA
       const alfaState = $("#alfa-state");
       const alfaRemaining = $("#alfa-remaining");
@@ -169,109 +305,162 @@ function updateDashboard() {
           .removeClass("occupied free")
           .addClass(data.charlie_status === "Occupata" ? "occupied" : "free");
       }
+
+      // Aggiorna lo stato delle piste statico
+      const deltaState = $("#delta-state");
+      const deltaRemaining = $("#delta-remaining");
+      const deltaStatus = $("#delta-status");
+      if (deltaState && deltaRemaining && deltaStatus) {
+          deltaState.text(data.delta_status);
+          deltaRemaining.text(data.delta_remaining);
+          deltaStatus
+              .removeClass("occupied free")
+              .addClass(data.delta_status === "Occupata" ? "occupied" : "free");
+      }
+      
+      const echoState = $("#echo-state");
+      const echoRemaining = $("#echo-remaining");
+      const echoStatus = $("#echo-status");
+      if (echoState && echoRemaining && echoStatus) {
+          echoState.text(data.echo_status);
+          echoRemaining.text(data.echo_remaining);
+          echoStatus
+              .removeClass("occupied free")
+              .addClass(data.echo_status === "Occupata" ? "occupied" : "free");
+      }
     });
 
   // Aggiorna la visualizzazione degli skippati
   updateSkipped();
 }
 
+function skipNextPlayerAlfaBravo2() {
+  const nextPlayerElement = document.getElementById("next-player-alfa-bravo2-text");
+  if (!nextPlayerElement) {
+      console.error("Elemento #next-player-alfa-bravo2-text non trovato.");
+      showNotification("Errore interfaccia: elemento prossimo giocatore non trovato.", true); // Usa showNotification se disponibile
+      return;
+  }
+  const nextPlayerId = nextPlayerElement.textContent;
+
+  if (nextPlayerId && nextPlayerId !== "Nessun Giocatore In Coda" && nextPlayerId !== "-") {
+      // Chiama direttamente l'endpoint o usa handleSkip se preferisci
+       fetch('/skip_next_player_alfa_bravo2', { // Endpoint specifico
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: nextPlayerId }),
+       })
+      .then(response => {
+          if (!response.ok) throw new Error(`Errore ${response.status} skip Alfa/Bravo 2`);
+          return response.json();
+      })
+      .then(data => {
+           console.log("Risposta skip Alfa/Bravo 2:", data);
+           updateDashboard(); // Aggiorna la dashboard
+           showNotification(`Giocatore ${nextPlayerId} skippato.`); // Usa showNotification
+      })
+      .catch(error => {
+          console.error("Errore durante skip Alfa/Bravo 2:", error);
+          showNotification(`Errore skip: ${error.message}`, true); // Usa showNotification
+      });
+
+      // Alternativa usando handleSkip (assicurati che handleSkip sia definito e accessibile)
+      // handleSkip('alfa-bravo2');
+  } else {
+       showNotification("Nessun giocatore Alfa/Bravo 2 da skippare.", true); // Usa showNotification
+  }
+}
+
+// Aggiorna la funzione skipNextPlayerAlfaBravo
 function skipNextPlayerAlfaBravo() {
   const nextPlayer = document.getElementById("next-player-alfa-bravo-text").textContent;
-  if (nextPlayer && nextPlayer !== "-") {
-    fetch("/skip_next_player_alfa_bravo", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: nextPlayer }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Errore nella chiamata di skip");
-        }
-        return response.json();
+  if (nextPlayer && nextPlayer !== "Nessun Giocatore In Coda" && nextPlayer !== "-") {
+      fetch("/skip_next_player_alfa_bravo", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: nextPlayer }),
       })
-      .then(() => {
-        fetch("/simulate")
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Errore nella chiamata di simulate");
-            }
-            return response.json();
-          })
-          .then((data) => {
-            // Prima controlla se ci sono coppie
-            if (data.couples && data.couples.length > 0) {
-              document.getElementById("next-player-alfa-bravo-text").textContent =
-                data.couples[0][1];
-            }
-
-            // Se non ci sono coppie, controlla i singoli
-            else if (data.singles && data.singles.length > 0) {
-              document.getElementById("next-player-alfa-bravo-text").textContent =
-                data.singles[0][1];
-            }
-            // Se non ci sono né coppie né singoli
-            else {
-              document.getElementById("next-player-alfa-bravo-text").textContent = "-";
-            }
-            updateDashboard();
-            updateSkipped();
-          })
-          .catch((error) => {
-            console.error("Errore durante la chiamata di simulate:", error);
-          });
+      .then(response => {
+          if (!response.ok) throw new Error("Errore nella chiamata di skip");
+          return response.json();
       })
-      .catch((error) => {
-        console.error("Errore durante la chiamata di skip:", error);
+      .then(data => {
+          // Aggiorna solo gli elementi necessari
+          if (data.next_player_alfa_bravo_id) {
+              document.getElementById("next-player-alfa-bravo-text").textContent = data.next_player_alfa_bravo_id;
+          } else {
+              document.getElementById("next-player-alfa-bravo-text").textContent = "Nessun Giocatore In Coda";
+          }
+          updateSkipped(); // Aggiorna esplicitamente la lista degli skippati
+          updateBoards(); // Aggiorna le board
+      })
+      .catch(error => {
+          console.error("Errore durante lo skip:", error);
       });
   }
 }
 
+// Aggiorna la funzione skipNextPlayerCharlie
 function skipNextPlayerCharlie() {
   const nextPlayer = document.getElementById("next-charlie-text").textContent;
-  if (nextPlayer && nextPlayer !== "-") {
-    fetch("/skip_charlie_player", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: nextPlayer }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Errore nella chiamata di skip");
-        }
-        return response.json();
+  if (nextPlayer && nextPlayer !== "Nessun Giocatore In Coda" && nextPlayer !== "-") {
+      fetch("/skip_charlie_player", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: nextPlayer }),
       })
-      .then(() => {
-        fetch("/simulate")
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Errore nella chiamata di simulate");
-            }
-            return response.json();
-          })
-          .then((data) => {
-            if (data.charlie && data.charlie.length > 0) {
-              document.getElementById("next-charlie-text").textContent =
-                data.charlie[0][1];
-            } else {
-              document.getElementById("next-charlie-text").textContent = "-";
-            }
-            updateDashboard();
-            updateSkipped();
-          })
-          .catch((error) => {
-            console.error("Errore durante la chiamata di simulate:", error);
-          });
+      .then(response => {
+          if (!response.ok) throw new Error("Errore nella chiamata di skip");
+          return response.json();
       })
-      .catch((error) => {
-        console.error("Errore durante la chiamata di skip:", error);
+      .then(data => {
+          if (data.next_player_charlie_id) {
+              document.getElementById("next-charlie-text").textContent = data.next_player_charlie_id;
+          } else {
+              document.getElementById("next-charlie-text").textContent = "Nessun Giocatore In Coda";
+          }
+          updateSkipped();
+          updateBoards();
+      })
+      .catch(error => {
+          console.error("Errore durante lo skip:", error);
       });
   }
 }
 
+// Aggiungi la funzione per lo skip statico
+function skipNextPlayerStatico() {
+  const nextPlayer = document.getElementById("next-statico-text").textContent;
+  if (nextPlayer && nextPlayer !== "Nessun Giocatore In Coda" && nextPlayer !== "-") {
+      fetch("/skip_statico_player", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: nextPlayer }),
+      })
+      .then(response => {
+          if (!response.ok) throw new Error("Errore nella chiamata di skip");
+          return response.json();
+      })
+      .then(data => {
+          if (data.next_player_statico_id) {
+              document.getElementById("next-statico-text").textContent = data.next_player_statico_id;
+          } else {
+              document.getElementById("next-statico-text").textContent = "Nessun Giocatore In Coda";
+          }
+          updateSkipped();
+          updateBoards();
+      })
+      .catch(error => {
+          console.error("Errore durante lo skip:", error);
+      });
+  }
+}
 function updateSkippedList() {
   $.get("/get_skipped", function (data) {
     const skippedList = $("#skipped-list");
@@ -326,58 +515,39 @@ function skipCharliePlayer() {
     .then(() => updateDashboard());
 }
 
-// Aggiorna la visualizzazione degli skippati
 function updateSkipped() {
   fetch("/get_skipped")
-    .then((response) => response.json())
-    .then((data) => {
-      const skippedCouplesContainer = document.getElementById("skipped-couples-buttons");
-      const skippedSinglesContainer = document.getElementById("skipped-couples-buttons");
-      const skippedCharlieContainer = document.getElementById("skipped-charlie-buttons");
+      .then(response => response.json())
+      .then(data => {
+          const createSkippedButtons = (containerId, players, className) => {
+              const container = document.getElementById(containerId);
+              if (container) {
+                  container.innerHTML = ""; // Pulisci prima di aggiungere
+                  if (players && players.length > 0) {
+                      players.forEach(player => {
+                          const button = document.createElement("button");
+                          button.className = `skipped-button ${className}`; // Usa la classe CSS corretta
+                          button.textContent = player.id;
+                          button.onclick = () => restoreSkipped(player.id);
+                          container.appendChild(button);
+                      });
+                  }
+              } else {
+                  // console.warn(`Container skipped non trovato: ${containerId}`);
+              }
+          };
 
-      skippedCouplesContainer.innerHTML = "";
-      skippedSinglesContainer.innerHTML = "";
-      skippedCharlieContainer.innerHTML = "";
-
-      // Gestione coppie skippate
-      if (data.couples && data.couples.length > 0) {
-        data.couples.forEach((player) => {
-          const button = document.createElement("button");
-          button.className = "skipped-button couple";
-          button.setAttribute("data-id", player.id);
-          button.textContent = player.id;
-          button.onclick = () => restoreSkipped(player.id);
-          skippedCouplesContainer.appendChild(button);
-        });
-      }
-
-      // Gestione singoli skippati
-      if (data.singles && data.singles.length > 0) {
-        data.singles.forEach((player) => {
-          const button = document.createElement("button");
-          button.className = "skipped-button single";
-          button.setAttribute("data-id", player.id);
-          button.textContent = player.id;
-          button.onclick = () => restoreSkipped(player.id);
-          skippedSinglesContainer.appendChild(button);
-        });
-      }
-
-      // Gestione charlie skippati
-      if (data.charlie && data.charlie.length > 0) {
-        data.charlie.forEach((player) => {
-          const button = document.createElement("button");
-          button.className = "skipped-button charlie";
-          button.setAttribute("data-id", player.id);
-          button.textContent = player.id;
-          button.onclick = () => restoreSkipped(player.id);
-          skippedCharlieContainer.appendChild(button);
-        });
-      }
-    })
-    .catch((error) => {
-      console.error("Errore durante il recupero degli skipped:", error);
-    });
+          // Aggiorna tutte le sezioni, incluse le nuove
+          createSkippedButtons("skipped-couples-buttons", data.couples, "couple");
+          createSkippedButtons("skipped-singles-buttons", data.singles, "single");
+          createSkippedButtons("skipped-couples2-buttons", data.couples2, "couple2"); // NUOVO
+          createSkippedButtons("skipped-singles2-buttons", data.singles2, "single2"); // NUOVO
+          createSkippedButtons("skipped-charlie-buttons", data.charlie, "charlie");
+          createSkippedButtons("skipped-statico-buttons", data.statico, "statico");
+      })
+      .catch(error => {
+          console.error("Errore durante il recupero degli skipped:", error);
+      });
 }
 
 // Assicurati che la funzione venga chiamata regolarmente
@@ -558,6 +728,44 @@ function addCharliePlayer() {
       }
     });
 }
+
+// Funzione formatTimeRome (assicurati sia definita)
+function formatTimeRome(date) {
+  if (!date || date === "N/D") return "N/D";
+  try {
+    const options = {
+      hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Europe/Rome",
+    };
+    // Prova a creare la data, gestendo possibili errori
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) { // Controlla se la data non è valida
+        return "N/D";
+    }
+    return dateObj.toLocaleTimeString("it-IT", options);
+  } catch (e) {
+    console.error("Errore formattazione data:", date, e);
+    return "N/D"; // Ritorna N/D in caso di errore
+  }
+}
+// Funzione formatTimeRome (assicurati sia definita)
+function formatTimeRome(date) {
+  if (!date || date === "N/D") return "N/D";
+  try {
+    const options = {
+      hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Europe/Rome",
+    };
+    // Prova a creare la data, gestendo possibili errori
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) { // Controlla se la data non è valida
+        return "N/D";
+    }
+    return dateObj.toLocaleTimeString("it-IT", options);
+  } catch (e) {
+    console.error("Errore formattazione data:", date, e);
+    return "N/D"; // Ritorna N/D in caso di errore
+  }
+}
+
 
 function deletePlayer(playerId) {
   fetch(`/delete_player`, {

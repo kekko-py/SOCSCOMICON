@@ -32,7 +32,7 @@ source venv/bin/activate
 ## Installa le dipendenze richieste con il seguente comando:
 
 ```bash
-pip install flask pytz
+pip install flask pytz mysql-connector
 ```
 
 ## Avvio del Progetto in Locale
@@ -60,6 +60,8 @@ pip install flask pytz
 
    Da qui potrai accedere alla dashboard e alle altre pagine di controllo (es. `/controls/cassa`, `/controls/couple`, `/controls/single`, `/controls/charlie`).
 
+
+
 ## Rotte Principali
 
 - `/`  
@@ -79,6 +81,12 @@ pip install flask pytz
 
 - `/controls/charlie`  
   Pagina per i controlli della pista Charlie.
+
+- `/queue`  
+  Pagina per controllare tutte le piste (ideata per i giocatori).
+
+- `/qrqueue`  
+  Pagina di visualizzazione del qrcode per accedere alla queue.
 
 - Altre rotte (es. `/add_couple`, `/add_single`, `/skip_charlie_player`, `/restore_skipped`, ecc.)  
   Permettono di gestire l'aggiunta di giocatori, saltare un giocatore in coda, ripristinare giocatori "skippati", ottenere il tabellone d'attesa, e altro.

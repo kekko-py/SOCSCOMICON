@@ -5,8 +5,13 @@
   font-family: "Roboto", sans-serif;
 }
 
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
 body {
-  background-color: #556959;
+  background-color: #556959 !important;
   padding: 5px;
 }
 

@@ -1093,17 +1093,6 @@ def delete_player():
     return jsonify(success=False, error="Player ID is required"), 400
 
 
-def run_sync_script_periodically():
-    while True:
-        # Esegui lo script Python
-        subprocess.run(['python', 'sync_script.py'])
-        # Aspetta 2 minuti (120 secondi)
-        time.sleep(120)
-
-#SCMMA -delent's
-# Avvia il thread separato
-sync_thread = Thread(target=run_sync_script_periodically, daemon=True)
-sync_thread.start()
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(12)

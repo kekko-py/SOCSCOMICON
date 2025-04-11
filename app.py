@@ -28,6 +28,7 @@ BASE_URL = "http://localhost:2000"  # Bisogna cambiarlo con il sito delle queue 
 
 SOCSCOMICON_REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "SOCSCOMICON")
 DB_PATH = os.path.join(SOCSCOMICON_REPO, "stand_db.db")
+DB_FILE = "stand_db.db" 
 
 def init_sqlite():
     logging.debug("[QUEUES] Acquisizione del lock per SQLite")
@@ -261,14 +262,17 @@ load_queues_from_db()
 
 def save_queues_to_db():
     while True:
-        try:
-            os.chdir(SOCSCOMICON_REPO)
+        os.chdir(SOCSCOMICON_REPO)
 
-            subprocess.run(["git", "add", "stand_db.db"])
-            subprocess.run(["git", "commit", "-m", f"Auto update {datetime.now().isoformat()}"])
-            subprocess.run(["git", "push", "origin", "main"])
-        except Exception as e:
-            print(f"Errore durante il salvataggio delle code: {e}")
+        try:
+            subprocess.run(["git", "add", DB_FILE], check=True)
+            subprocess.run(["git", "commit", "-m", f"Auto update {datetime.now().isoformat()}"], check=True)
+            subprocess.run(["git", "push", "origin", "main"], check=True)
+
+            print(f"[AUTO-COMMIT] Push completato alle {datetime.now().isoformat()}")
+
+        except subprocess.CalledProcessError as e:
+            print(f"[AUTO-COMMIT] Errore Git: {e}")
         time.sleep(60)
 
 # Avvia il thread per il salvataggio periodico

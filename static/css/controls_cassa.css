@@ -1,5 +1,6 @@
 .control-panel {
-    background: #00000080; /* fourth-color */
+    background: #00000080;
+    /* fourth-color */
     border-radius: 10px;
     color: #ffffff;
     border: 1px solid #ffffff;
@@ -20,7 +21,8 @@
 
 .current-player {
     margin-bottom: 1rem;
-    color: #070F4E; /* first-color */
+    color: #070F4E;
+    /* first-color */
     font-weight: bold;
 }
 
@@ -89,10 +91,11 @@
 }
 
 .btn-blue {
-    background: #2772DB; /* second-color */
+    background: #2772DB;
+    /* second-color */
     color: white;
     width: 100%;
-}   
+}
 
 .btn-red {
     background: #f44336;
@@ -145,7 +148,8 @@
 }
 
 .skipped-button.statico {
-    border-left: 3px solid #f44336; /* Rosso */
+    border-left: 3px solid #f44336;
+    /* Rosso */
     background-color: #f44336;
     color: white;
 }
@@ -157,7 +161,8 @@
 }
 
 .btn-blue {
-    background: #2772DB; /* second-color */
+    background: #2772DB;
+    /* second-color */
     color: white;
     width: 100%;
 }
@@ -176,13 +181,15 @@
 
 /* NUOVI STILI */
 .btn-purple {
-    background: #9c27b0; /* Viola */
+    background: #9c27b0;
+    /* Viola */
     color: white;
     width: 100%;
 }
 
 .btn-orange {
-    background: #ff9800; /* Arancione */
+    background: #ff9800;
+    /* Arancione */
     color: white;
     width: 100%;
 }
@@ -197,12 +204,16 @@
 
 /* ... resto degli stili ... */
 
-.skipped-button.couple2 { /* Stile per bottoni skippati couple2 */
-  background-color: #9c27b0; /* Viola */
-  color: white;
+.skipped-button.couple2 {
+    /* Stile per bottoni skippati couple2 */
+    background-color: #9c27b0;
+    /* Viola */
+    color: white;
 }
 
-.skipped-button.single2 { /* Stile per bottoni skippati single2 */
-  background-color: #ff9800; /* Arancione */
-  color: white;
+.skipped-button.single2 {
+    /* Stile per bottoni skippati single2 */
+    background-color: #ff9800;
+    /* Arancione */
+    color: white;
 }

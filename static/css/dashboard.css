@@ -14,9 +14,11 @@
   width: 100%;
 }
 
-html, body, .container {
-    width: 100%;
-    padding: 0px;
+html,
+body,
+.container {
+  width: 100%;
+  padding: 0px;
 }
 
 .big-box {
@@ -40,7 +42,8 @@ html, body, .container {
 
 
 .status-box {
-  background: #F5EBEB; /* fourth-color */
+  background: white;
+  /* fourth-color */
   border-radius: 10px;
   padding: 20px;
   width: 250px;
@@ -69,7 +72,8 @@ html, body, .container {
 
 .board {
   overflow-y: auto;
-  background: #00000080; /* fourth-color */
+  background: #00000080;
+  /* fourth-color */
   border: 1px solid #ffffff;
   border-radius: 10px;
   padding: 20px;
@@ -80,7 +84,8 @@ html, body, .container {
 }
 
 .board h2 {
-  color: #ffffff; /* first-color */
+  color: #ffffff;
+  /* first-color */
   margin-bottom: 15px;
   text-align: center;
 }
@@ -150,7 +155,8 @@ html, body, .container {
 }
 
 .next-player-card {
-  background: #3AB1C8; /* third-color */
+  background: #3AB1C8;
+  /* third-color */
   border-radius: 10px;
   padding: 20px;
   margin: 30px auto;
@@ -168,7 +174,8 @@ html, body, .container {
 }
 
 .next-player-title {
-  color: #ffffff; /* first-color */
+  color: #ffffff;
+  /* first-color */
   font-size: 1.2em;
   margin-bottom: 10px;
 }
@@ -232,7 +239,8 @@ html, body, .container {
 }
 
 .skipped-title {
-  color: #070F4E; /* first-color */
+  color: white;
+  /* first-color */
   font-size: 1.2em;
   margin-bottom: 15px;
   text-align: center;
@@ -273,7 +281,8 @@ html, body, .container {
   max-height: 100%;
   width: 100%;
   height: 100%;
-  background: #00000080; /* fourth-color */
+  background: #00000080;
+  /* fourth-color */
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -281,7 +290,8 @@ html, body, .container {
 }
 
 .skipped-title {
-  color: #ffffff; /* first-color */
+  color: #ffffff;
+  /* first-color */
   margin-bottom: 15px;
   text-align: center;
   font-size: 1.2em;
@@ -370,7 +380,8 @@ html, body, .container {
 }
 
 .skipped-button.statico {
-  border-left: 3px solid #f44336; /* Rosso */
+  border-left: 3px solid #f44336;
+  /* Rosso */
   background-color: #f44336;
   color: white;
 }

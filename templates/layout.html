@@ -17,12 +17,13 @@
     }
 
     body {
-      background: #070f4e;
+      background: #556959;
+      ;
       min-height: 100vh;
     }
 
     .navbar {
-      background: #070f4e;
+      background: white;
       margin-bottom: 2rem;
       position: relative;
     }
@@ -37,7 +38,7 @@
       background: #3ab1c8;
       z-index: 999;
       padding-top: 4rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     .nav-links.active {
@@ -52,7 +53,7 @@
       padding: 1rem;
       text-align: center;
       transition: background-color 0.3s;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .nav-links a:hover {
@@ -68,7 +69,7 @@
       font-size: 2rem;
       cursor: pointer;
       z-index: 1000;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       padding: 0.5rem;
       border-radius: 4px;
     }
@@ -95,18 +96,18 @@
         justify-content: center;
         flex-wrap: wrap;
       }
-      
+
       .nav-links.active {
         display: flex;
       }
-      
+
       .nav-links a {
         font-size: 1.2rem;
         padding: 0.8rem 1.2rem;
         border-bottom: none;
-        border-right: 1px solid rgba(255,255,255,0.1);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
       }
-      
+
       .nav-links a:last-child {
         border-right: none;
       }
@@ -137,20 +138,21 @@
   <div class="" style="padding: 20px;">{% block content %}{% endblock %}</div>
 
   <script>
-    $(document).ready(function() {
-      $('#hamburger').click(function() {
+    $(document).ready(function () {
+      $('#hamburger').click(function () {
         $('#navLinks').toggleClass('active');
         $(this).find('i').toggleClass('fa-bars fa-times');
       });
-      
+
       // Chiudi il menu quando si clicca su un link
-      $('#navLinks a').click(function() {
+      $('#navLinks a').click(function () {
         $('#navLinks').removeClass('active');
         $('#hamburger i').removeClass('fa-times').addClass('fa-bars');
       });
     });
   </script>
-  
+
   {% block scripts %}{% endblock %}
 </body>
+
 </html>

@@ -262,10 +262,95 @@ load_queues_from_db()
 
 def save_queues_to_db():
     while True:
+
+        conn = sqlite3.connect(SQLITE_DB_PATH)
+        cursor = conn.cursor()
+
+        # Cancella le vecchie code
+        cursor.execute("DELETE FROM queues")
+        conn.commit()
+
+        # Salva le code delle coppie
+        for couple in backend.queue_couples:
+            cursor.execute(
+                "INSERT INTO queues (player_type, player_id, player_name, arrival_time) VALUES (?, ?, ?, ?) ",
+                ('couple', couple['id'], backend.get_player_name(couple['id']), couple['arrival'])
+            )
+
+        # Salva le code dei singoli
+        for single in backend.queue_singles:
+            cursor.execute(
+                "INSERT INTO queues (player_type, player_id, player_name, arrival_time) VALUES (?, ?, ?, ?)",
+                ('single', single['id'], backend.get_player_name(single['id']), single['arrival'])
+            )
+
+        # Salva le code di Charlie
+        for charlie in backend.queue_charlie:
+            cursor.execute(
+                "INSERT INTO queues (player_type, player_id, player_name, arrival_time) VALUES (?, ?, ?, ?)",
+                ('charlie', charlie['id'], backend.get_player_name(charlie['id']), charlie['arrival'])
+            )
+
+        # Salva le code di Statico
+        for statico in backend.queue_statico:
+            cursor.execute(
+                "INSERT INTO queues (player_type, player_id, player_name, arrival_time) VALUES (?, ?, ?, ?)",
+                ('statico', statico['id'], backend.get_player_name(statico['id']), statico['arrival'])
+            )
+
+        # Salva gli score
+        cursor.execute("DELETE FROM scoring")
+        for i, score in enumerate(backend.couple_history_total):
+            cursor.execute(
+                "INSERT INTO scoring (player_type, player_id, player_name, score) VALUES (?, ?, ?, ?)",
+                ('couple', f"COMPLETATO-{i + 1}", f"COMPLETATO-{i + 1}", backend.format_time(score))
+            )
+        for i, score in enumerate(backend.single_history):
+            cursor.execute(
+                "INSERT INTO scoring (player_type, player_id, player_name, score) VALUES (?, ?, ?, ?)",
+                ('single', f"COMPLETATO-{i + 1}", f"COMPLETATO-{i + 1}", backend.format_time(score))
+            )
+        for i, score in enumerate(backend.charlie_history):
+            cursor.execute(
+                "INSERT INTO scoring (player_type, player_id, player_name, score) VALUES (?, ?, ?, ?)",
+                ('charlie', f"COMPLETATO-{i + 1}", f"COMPLETATO-{i + 1}", backend.format_time(score))
+            )
+        for i, score in enumerate(backend.statico_history):
+            cursor.execute(
+                "INSERT INTO scoring (player_type, player_id, player_name, score) VALUES (?, ?, ?, ?)",
+                ('statico', f"COMPLETATO-{i + 1}", f"COMPLETATO-{i + 1}", backend.format_time(score))
+            )
+
+        # Salva gli skippati
+        cursor.execute("DELETE FROM skipped_players")
+        for player in backend.skipped_couples:
+            cursor.execute(
+                "INSERT INTO skipped_players (player_type, player_id, player_name, skipped_at) VALUES (?, ?, ?, ?)",
+                ('couple', player['id'], backend.get_player_name(player['id']), datetime.datetime.now())
+            )
+        for player in backend.skipped_singles:
+            cursor.execute(
+                "INSERT INTO skipped_players (player_type, player_id, player_name, skipped_at) VALUES (?, ?, ?, ?)",
+                ('single', player['id'], backend.get_player_name(player['id']), datetime.datetime.now())
+            )
+        for player in backend.skipped_charlie:
+            cursor.execute(
+                "INSERT INTO skipped_players (player_type, player_id, player_name, skipped_at) VALUES (?, ?, ?, ?)",
+                ('charlie', player['id'], backend.get_player_name(player['id']), datetime.datetime.now())
+            )
+        for player in backend.skipped_statico:
+            cursor.execute(
+                "INSERT INTO skipped_players (player_type, player_id, player_name, skipped_at) VALUES (?, ?, ?, ?)",
+                ('statico', player['id'], backend.get_player_name(player['id']), datetime.datetime.now())
+            )
+
+        conn.commit()
+        conn.close()
+
         os.chdir(SOCSCOMICON_REPO)
 
         try:
-            subprocess.run(["git", "add", DB_FILE], check=True)
+            subprocess.run(["git", "add", "."], check=True)
             subprocess.run(["git", "commit", "-m", f"Auto update {datetime.now().isoformat()}"], check=True)
             subprocess.run(["git", "push", "origin", "main"], check=True)
 

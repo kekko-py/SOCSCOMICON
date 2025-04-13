@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Controlla la tua posizione</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            width: 200px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: none;
+        }
+        .error {
+            color: red;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Controlla la tua posizione in coda</h1>
+        
+        <div class="input-group">
+            <input type="text" id="playerCode" placeholder="Inserisci il tuo codice (es. GIALLO-001)">
+            <button onclick="checkQueue()">Controlla</button>
+        </div>
+
+        <div id="error" class="error"></div>
+        
+        <div id="result" class="result">
+            <h2>Le tue informazioni:</h2>
+            <p>Codice: <span id="playerCodeDisplay"></span></p>
+            <p>Categoria: <span id="playerCategory"></span></p>
+            <p>Posizione in coda: <span id="queuePosition"></span></p>
+            <p>Tempo di attesa stimato: <span id="estimatedTime"></span></p>
+            <p>Giocatori prima di te: <span id="playersAhead"></span></p>
+        </div>
+    </div>
+
+    <script>
+        let lastQueueData = null;
+        
+        function getPlayerCategory(code) {
+            if (code.startsWith('GIALLO')) return 'couple';
+            if (code.startsWith('BLU')) return 'single';
+            if (code.startsWith('VIOLA')) return 'couple2';
+            if (code.startsWith('ARANCIO')) return 'single2';
+            if (code.startsWith('ROSSO')) return 'charlie';
+            if (code.startsWith('VERDE')) return 'statico';
+            return null;
+        }
+
+        async function checkQueue() {
+            const playerCode = document.getElementById('playerCode').value.toUpperCase();
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+            
+            // Validazione input
+            if (!playerCode) {
+                errorDiv.textContent = 'Inserisci un codice valido';
+                errorDiv.style.display = 'block';
+                resultDiv.style.display = 'none';
+                return;
+            }
+
+            const category = getPlayerCategory(playerCode);
+            if (!category) {
+                errorDiv.textContent = 'Formato codice non valido';
+                errorDiv.style.display = 'block';
+                resultDiv.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch('/simulate');
+                const data = await response.json();
+                
+                // Aggiorna i dati visualizzati
+                updateDisplay(playerCode, category, data);
+                
+                // Salva i dati per il confronto successivo
+                lastQueueData = data;
+                
+                // Nascondi eventuali errori
+                errorDiv.style.display = 'none';
+                resultDiv.style.display = 'block';
+                
+                // Imposta il timer per il prossimo aggiornamento
+                setTimeout(() => checkQueue(), 20000);
+                
+            } catch (error) {
+                errorDiv.textContent = 'Errore nel caricamento dei dati';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        function updateDisplay(playerCode, category, data) {
+            document.getElementById('playerCodeDisplay').textContent = playerCode;
+            document.getElementById('playerCategory').textContent = getCategoryName(category);
+            
+            // Trova la posizione del giocatore nella coda appropriata
+            let queueData = data[category];
+            let position = -1;
+            let playersAhead = 0;
+            
+            for (let i = 0; i < queueData.length; i++) {
+                if (queueData[i].id === playerCode) {
+                    position = i + 1;
+                    playersAhead = i;
+                    break;
+                }
+            }
+
+            if (position === -1) {
+                document.getElementById('queuePosition').textContent = 'Non in coda';
+                document.getElementById('estimatedTime').textContent = 'N/A';
+                document.getElementById('playersAhead').textContent = 'N/A';
+            } else {
+                document.getElementById('queuePosition').textContent = position;
+                document.getElementById('estimatedTime').textContent = queueData[playersAhead].estimated_time + ' minuti';
+                document.getElementById('playersAhead').textContent = playersAhead;
+            }
+
+            // Controlla se ci sono cambiamenti rispetto all'ultimo controllo
+            if (lastQueueData) {
+                const lastPosition = findPositionInQueue(playerCode, lastQueueData[category]);
+                if (lastPosition !== position) {
+                    // Evidenzia il cambiamento (puoi personalizzare l'effetto visivo)
+                    document.getElementById('result').style.backgroundColor = '#ffffcc';
+                    setTimeout(() => {
+                        document.getElementById('result').style.backgroundColor = '';
+                    }, 1000);
+                }
+            }
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                'couple': 'Coppie (GIALLO)',
+                'single': 'Singoli (BLU)',
+                'couple2': 'Coppie 2 (VIOLA)',
+                'single2': 'Singoli 2 (ARANCIO)',
+                'charlie': 'Charlie (ROSSO)',
+                'statico': 'Statico (VERDE)'
+            };
+            return categories[category] || category;
+        }
+
+        function findPositionInQueue(playerCode, queue) {
+            for (let i = 0; i < queue.length; i++) {
+                if (queue[i].id === playerCode) return i + 1;
+            }
+            return -1;
+        }
+    </script>
+</body>
+</html>

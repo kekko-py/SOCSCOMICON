@@ -346,6 +346,7 @@ def save_queues_to_db():
 
         conn.commit()
         conn.close()
+        time.sleep(5)
 
         os.chdir(SOCSCOMICON_REPO)
 
@@ -358,7 +359,7 @@ def save_queues_to_db():
 
         except subprocess.CalledProcessError as e:
             print(f"[AUTO-COMMIT] Errore Git: {e}")
-        time.sleep(60)
+        time.sleep(25)
 
 # Avvia il thread per il salvataggio periodico
 save_thread = Thread(target=save_queues_to_db, daemon=True)

@@ -68,10 +68,9 @@
 
     <script>
         let lastQueueData = null;
-        let currentPlayerCode = null;  // Mantiene il codice del giocatore cercato
-        let checkInterval = null;      // Mantiene il riferimento all'intervallo di controllo
+        let currentPlayerCode = null;
+        let checkInterval = null;
         
-        // Controlla se c'era una ricerca attiva al caricamento della pagina
         window.onload = function() {
             const savedCode = localStorage.getItem('currentPlayerCode');
             if (savedCode) {
@@ -179,14 +178,14 @@
             const queueData = data.queues[category];
             let position = -1;
             let playersAhead = 0;
-            let playerArrival = null;
+            let playerData = null;
             
-            // Trova la posizione del giocatore e il suo orario di arrivo
+            // Trova la posizione del giocatore e i suoi dati
             for (let i = 0; i < queueData.length; i++) {
-                if (queueData[i].id === playerCode) {
+                if (queueData[i].player_id === playerCode) {  // Cambiato da id a player_id
                     position = i + 1;
                     playersAhead = i;
-                    playerArrival = queueData[i].arrival;
+                    playerData = queueData[i];
                     break;
                 }
             }
@@ -197,12 +196,12 @@
                 document.getElementById('playersAhead').textContent = 'N/A';
             } else {
                 document.getElementById('queuePosition').textContent = position;
-                document.getElementById('estimatedTime').textContent = formatDateTime(playerArrival);
+                document.getElementById('estimatedTime').textContent = formatDateTime(playerData.arrival_time);  // Cambiato da arrival a arrival_time
                 
                 // Mostra i giocatori che sono in coda prima
                 const playersAheadList = queueData
                     .slice(0, playersAhead)
-                    .map(player => player.id)
+                    .map(player => `${player.player_id} (${player.player_name})`)  // Aggiunto nome giocatore
                     .join(', ');
                 
                 document.getElementById('playersAhead').textContent = 
@@ -225,7 +224,7 @@
 
         function findPositionInQueue(playerCode, queue) {
             for (let i = 0; i < queue.length; i++) {
-                if (queue[i].id === playerCode) return i + 1;
+                if (queue[i].player_id === playerCode) return i + 1;  // Cambiato da id a player_id
             }
             return -1;
         }

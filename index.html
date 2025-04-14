@@ -102,10 +102,17 @@
         }
 
         function formatDateTime(dateString) {
+            // Crea un oggetto Date dal timestamp ISO
             const date = new Date(dateString);
-            return date.toLocaleTimeString('it-IT', { 
+            
+            // Aggiungi il fuso orario italiano (UTC+1 o UTC+2 in base all'ora legale)
+            const italianDate = new Date(date.getTime() + (date.getTimezoneOffset() * 60000));
+            
+            // Formatta l'ora nel formato italiano
+            return italianDate.toLocaleTimeString('it-IT', { 
                 hour: '2-digit', 
-                minute: '2-digit'
+                minute: '2-digit',
+                timeZone: 'Europe/Rome'
             });
         }
 

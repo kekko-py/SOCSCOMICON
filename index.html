@@ -70,12 +70,12 @@
         let lastQueueData = null;
         
         function getPlayerCategory(code) {
-            if (code.startsWith('GIALLO')) return 'couple';
-            if (code.startsWith('BLU')) return 'single';
-            if (code.startsWith('VIOLA')) return 'couple2';
-            if (code.startsWith('ARANCIO')) return 'single2';
-            if (code.startsWith('ROSSO')) return 'charlie';
-            if (code.startsWith('VERDE')) return 'statico';
+            if (code.startsWith('GIALLO')) return 'TIRO DINAMICO COPPIA';
+            if (code.startsWith('BLU')) return 'TIRO DINAMICO SINGOLO';
+            if (code.startsWith('VIOLA')) return 'TIRO STATICO COPPIA';
+            if (code.startsWith('ARANCIO')) return 'TIRO STATICO SINGOLO';
+            if (code.startsWith('ROSSO')) return 'POLIGONO STATICO';
+            if (code.startsWith('VERDE')) return 'POLIGONO G&G';
             return null;
         }
 

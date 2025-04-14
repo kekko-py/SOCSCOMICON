@@ -68,6 +68,8 @@
 
     <script>
         let lastQueueData = null;
+        let currentPlayerCode = null;  // Mantiene il codice del giocatore cercato
+        let checkInterval = null;      // Mantiene il riferimento all'intervallo di controllo
         
         function getPlayerCategory(code) {
             if (code.startsWith('GIALLO')) return 'couple';
@@ -104,36 +106,56 @@
             const errorDiv = document.getElementById('error');
             const resultDiv = document.getElementById('result');
             
-            if (!playerCode) {
-                errorDiv.textContent = 'Inserisci un codice valido';
-                errorDiv.style.display = 'block';
-                resultDiv.style.display = 'none';
-                return;
+            // Se è una nuova ricerca
+            if (currentPlayerCode !== playerCode) {
+                if (!playerCode) {
+                    errorDiv.textContent = 'Inserisci un codice valido';
+                    errorDiv.style.display = 'block';
+                    resultDiv.style.display = 'none';
+                    return;
+                }
+
+                const category = getPlayerCategory(playerCode);
+                if (!category) {
+                    errorDiv.textContent = 'Formato codice non valido';
+                    errorDiv.style.display = 'block';
+                    resultDiv.style.display = 'none';
+                    return;
+                }
+
+                // Salva il nuovo codice e avvia il monitoraggio
+                currentPlayerCode = playerCode;
+                
+                // Pulisci eventuali intervalli precedenti
+                if (checkInterval) {
+                    clearInterval(checkInterval);
+                }
+                
+                // Avvia un nuovo intervallo di controllo
+                checkInterval = setInterval(updateQueueData, 20000);
             }
 
-            const category = getPlayerCategory(playerCode);
-            if (!category) {
-                errorDiv.textContent = 'Formato codice non valido';
-                errorDiv.style.display = 'block';
-                resultDiv.style.display = 'none';
-                return;
-            }
+            // Aggiorna i dati
+            await updateQueueData();
+        }
+
+        async function updateQueueData() {
+            if (!currentPlayerCode) return;
 
             try {
                 const response = await fetch('data_online.json');
                 const data = await response.json();
                 
-                updateDisplay(playerCode, category, data);
+                const category = getPlayerCategory(currentPlayerCode);
+                updateDisplay(currentPlayerCode, category, data);
                 lastQueueData = data;
                 
-                errorDiv.style.display = 'none';
-                resultDiv.style.display = 'block';
-                
-                setTimeout(checkQueue, 20000);
+                document.getElementById('error').style.display = 'none';
+                document.getElementById('result').style.display = 'block';
                 
             } catch (error) {
-                errorDiv.textContent = 'Errore nel caricamento dei dati';
-                errorDiv.style.display = 'block';
+                document.getElementById('error').textContent = 'Errore nel caricamento dei dati';
+                document.getElementById('error').style.display = 'block';
             }
         }
 

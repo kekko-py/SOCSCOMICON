@@ -71,6 +71,15 @@
         let currentPlayerCode = null;  // Mantiene il codice del giocatore cercato
         let checkInterval = null;      // Mantiene il riferimento all'intervallo di controllo
         
+        // Controlla se c'era una ricerca attiva al caricamento della pagina
+        window.onload = function() {
+            const savedCode = localStorage.getItem('currentPlayerCode');
+            if (savedCode) {
+                document.getElementById('playerCode').value = savedCode;
+                checkQueue();
+            }
+        };
+
         function getPlayerCategory(code) {
             if (code.startsWith('GIALLO')) return 'couple';
             if (code.startsWith('BLU')) return 'single';
@@ -123,13 +132,17 @@
                     return;
                 }
 
-                // Salva il nuovo codice e avvia il monitoraggio
+                // Salva il nuovo codice
                 currentPlayerCode = playerCode;
+                localStorage.setItem('currentPlayerCode', playerCode);
                 
                 // Pulisci eventuali intervalli precedenti
                 if (checkInterval) {
                     clearInterval(checkInterval);
                 }
+                
+                // Mostra subito il risultato
+                resultDiv.style.display = 'block';
                 
                 // Avvia un nuovo intervallo di controllo
                 checkInterval = setInterval(updateQueueData, 20000);
@@ -151,7 +164,7 @@
                 lastQueueData = data;
                 
                 document.getElementById('error').style.display = 'none';
-                document.getElementById('result').style.display = 'block';
+                // Non nascondiamo più il risultato qui
                 
             } catch (error) {
                 document.getElementById('error').textContent = 'Errore nel caricamento dei dati';

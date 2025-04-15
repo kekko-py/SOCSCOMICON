@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-04-15T22:08:34.015159",
+  "timestamp": "2025-04-15T22:10:50.719677",
   "queues": {
     "couple": [],
     "single": [
@@ -13,121 +13,121 @@
         "player_type": "single",
         "player_id": "BLU 002",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:10:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:12:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 003",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:12:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:14:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 004",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:14:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:16:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 005",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:16:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:18:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 006",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:18:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:20:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 007",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:20:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:22:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 008",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:22:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:24:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 009",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:24:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:26:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 010",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:26:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:28:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 011",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:28:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:30:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 012",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:30:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:32:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 013",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:32:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:34:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 014",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:34:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:36:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 015",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:36:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:38:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 016",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:38:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:40:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 017",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:40:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:42:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 018",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:42:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:44:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 019",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:44:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:46:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 020",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:46:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:48:50.719561+02:00"
       },
       {
         "player_type": "single",
         "player_id": "BLU 021",
         "player_name": "BLU",
-        "arrival_time": "2025-04-15T22:48:34.015041+02:00"
+        "arrival_time": "2025-04-15T22:50:50.719561+02:00"
       }
     ],
     "couple2": [
@@ -141,19 +141,19 @@
         "player_type": "couple2",
         "player_id": "VIOLA 002",
         "player_name": "VIOLA",
-        "arrival_time": "2025-04-15T22:13:34.015114+02:00"
+        "arrival_time": "2025-04-15T22:15:50.719634+02:00"
       },
       {
         "player_type": "couple2",
         "player_id": "VIOLA 003",
         "player_name": "VIOLA",
-        "arrival_time": "2025-04-15T22:18:34.015114+02:00"
+        "arrival_time": "2025-04-15T22:20:50.719634+02:00"
       },
       {
         "player_type": "couple2",
         "player_id": "VIOLA 004",
         "player_name": "VIOLA",
-        "arrival_time": "2025-04-15T22:23:34.015114+02:00"
+        "arrival_time": "2025-04-15T22:25:50.719634+02:00"
       }
     ],
     "single2": [],
